@@ -85,7 +85,7 @@
           <div class="card-title">POSTING FROM THIS PANEL</div>
           <p style="font-size:0.85rem;color:var(--dim)">
             Static GitHub Pages cannot post as the bot. Auto-Role, Embed, Meets and AutoFeeds
-            generate commands / JSON for you to run in Discord. A future bot API on Render can unlock one-click post.
+            generate commands / JSON for you to run in Discord. API on Render is available: set <code>BOVA_API.baseUrl</code> in <code>js/config.js</code>. Calls require your Discord user ID + staff role.
           </p>
         </div>
       </section>
@@ -113,6 +113,7 @@
             <div id="ar-role-list" style="margin-top:0.8rem"></div>
             <p style="font-size:0.75rem;color:var(--dim);margin-top:0.8rem" id="ar-cmd-hint"></p>
             <button class="btn btn-ghost" onclick="exportArConfig()">EXPORT JSON</button>
+            <button class="btn btn-primary" onclick="postArPanel()">POST PANEL TO DISCORD</button>
           </div>
           <div class="card">
             <div class="card-title">LIVE PREVIEW</div>
@@ -143,7 +144,8 @@
             <p style="font-size:0.75rem;color:var(--dim)" id="em-cmd-hint">
               Static sites cannot post as the bot. Copy webhook JSON or use a staff webhook.
             </p>
-            <button class="btn btn-primary" onclick="copyEmWebhookPayload()">COPY WEBHOOK JSON</button>
+            <button class="btn btn-primary" onclick="postEmToDiscord()">POST TO DISCORD</button>
+            <button class="btn btn-ghost" onclick="copyEmWebhookPayload()">COPY WEBHOOK JSON</button>
             <button class="btn btn-ghost" onclick="copyEmJson()">COPY RAW JSON</button>
           </div>
           <div class="card">
@@ -180,7 +182,8 @@
             <label>Reminder channel</label>
             <select id="mt-rem-ch"></select>
             <p style="font-size:0.8rem;color:var(--cyan);margin-top:0.5rem" id="mt-cmd-hint"></p>
-            <button class="btn btn-primary" onclick="copyMtCommand()">COPY /meet COMMAND</button>
+            <button class="btn btn-primary" onclick="postMtToDiscord()">POST MEET TO DISCORD</button>
+            <button class="btn btn-ghost" onclick="copyMtCommand()">COPY /meet COMMAND</button>
           </div>
           <div class="card">
             <div class="card-title">LIVE PREVIEW</div>
@@ -241,7 +244,8 @@
           <label>Embed title (optional)</label>
           <input id="af-embed-title" />
           <p style="font-size:0.8rem;color:var(--cyan);margin-top:0.5rem" id="af-cmd-hint"></p>
-          <button class="btn btn-primary" onclick="copyAfCommand()">COPY /autofeed_add COMMAND</button>
+          <button class="btn btn-primary" onclick="postAfToDiscord()">CREATE AUTOFEED VIA API</button>
+            <button class="btn btn-ghost" onclick="copyAfCommand()">COPY /autofeed_add COMMAND</button>
         </div>
       </section>
 

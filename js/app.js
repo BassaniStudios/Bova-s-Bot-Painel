@@ -1,5 +1,70 @@
 /** Access key — change via PANEL_ACCESS_KEY in bot .env and update here for the static panel */
 const ACCESS_KEY = "BOVA-CORE-2026";
+
+function getApiBase() {
+  return (window.BOVA_API && window.BOVA_API.baseUrl) || "";
+}
+function getDiscordUserId() {
+  return sessionStorage.getItem("bova_discord_id") || localStorage.getItem("bova_discord_id") || "";
+}
+function setDiscordUserId(id) {
+  sessionStorage.setItem("bova_discord_id", id);
+  localStorage.setItem("bova_discord_id", id);
+}
+async function apiPost(path, body) {
+  const base = getApiBase();
+  if (!base || base.includes("YOUR-RENDER")) {
+    alert("Configure window.BOVA_API.baseUrl in js/config.js with your Render URL.");
+    throw new Error("no api");
+  }
+  const uid = getDiscordUserId();
+  if (!uid) {
+    const entered = prompt("Your Discord User ID (Developer Mode → right-click yourself → Copy ID):");
+    if (!entered) throw new Error("no user id");
+    setDiscordUserId(entered.trim());
+  }
+  const res = await fetch(base.replace(/\/$/, "") + path, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": ACCESS_KEY,
+      "X-Discord-User-Id": getDiscordUserId(),
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    alert("API error: " + (data.detail || data.error || res.status));
+    throw new Error(data.error || "api error");
+  }
+  return data;
+}
+async function apiGet(path) {
+  const base = getApiBase();
+  if (!base || base.includes("YOUR-RENDER")) {
+    alert("Configure BOVA_API.baseUrl in js/config.js");
+    throw new Error("no api");
+  }
+  if (!getDiscordUserId()) {
+    const entered = prompt("Your Discord User ID:");
+    if (!entered) throw new Error("no user id");
+    setDiscordUserId(entered.trim());
+  }
+  const res = await fetch(base.replace(/\/$/, "") + path, {
+    headers: {
+      "X-API-Key": ACCESS_KEY,
+      "X-Discord-User-Id": getDiscordUserId(),
+    },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    alert("API error: " + (data.detail || data.error || res.status));
+    throw new Error(data.error || "api error");
+  }
+  return data;
+}
+
+
 const C = () => window.BOVA_CONFIG || { roles: [], channels: [], hosts: [], servers: [], emojis: [] };
 const TZ_LIST = [
   { id: "America/Sao_Paulo", label: "São Paulo (UTC-3)", offset: -3 },
@@ -354,4 +419,88 @@ function initAll() {
   updateMtPreview();
   updateTs();
   toggleAfMode();
+}
+
+
+async function postEmToDiscord() {
+  try {
+    const role = document.getElementById("em-role");
+    const data = await apiPost("/api/embed", {
+      channel_id: document.getElementById("em-channel")?.value,
+      title: document.getElementById("em-title")?.value,
+      description: document.getElementById("em-desc")?.value,
+      color: document.getElementById("em-color")?.value,
+      image_url: document.getElementById("em-image")?.value || null,
+      footer: document.getElementById("em-footer")?.value,
+      role_id: role?.value || null,
+    });
+    alert("Embed posted! message_id=" + data.message_id);
+  } catch (e) {}
+}
+
+async function postArPanel() {
+  try {
+    const ch = prompt("Channel ID to post the auto-role panel:");
+    if (!ch) return;
+    const title = document.getElementById("ar-title")?.value;
+    const description = document.getElementById("ar-desc")?.value;
+    const color = document.getElementById("ar-color")?.value;
+    const data = await apiPost("/api/autorole/panel", {
+      channel_id: ch,
+      title, description, color,
+      roles: arRoles,
+    });
+    alert("Auto-role panel posted! message_id=" + data.message_id);
+  } catch (e) {}
+}
+
+async function postMtToDiscord() {
+  try {
+    const date = document.getElementById("mt-date")?.value;
+    const time = document.getElementById("mt-time")?.value || "20:00";
+    if (!date) return alert("Select a date");
+    const [y, m, d] = date.split("-");
+    const dt = `${d}/${m}/${y} ${time}`;
+    const ch = prompt("Channel ID to post the meet:");
+    if (!ch) return;
+    const role = document.getElementById("mt-role")?.value;
+    const rem = document.getElementById("mt-reminder")?.checked;
+    const remCh = document.getElementById("mt-rem-ch")?.value;
+    const data = await apiPost("/api/meet", {
+      channel_id: ch,
+      title: document.getElementById("mt-title")?.value || "Meet",
+      description: document.getElementById("mt-desc")?.value || "",
+      date_time: dt,
+      hosts: mtSelectedHosts.join(", ") || "TBD",
+      server: document.getElementById("mt-server")?.value || "",
+      timezone_offset: parseFloat(document.getElementById("mt-tz")?.value || "-3"),
+      mention_role_id: role || null,
+      image_url: document.getElementById("mt-image")?.value || null,
+      enable_reminder: !!rem,
+      reminder_channel_id: rem ? remCh : null,
+    });
+    alert("Meet posted! message_id=" + data.message_id);
+  } catch (e) {}
+}
+
+async function postAfToDiscord() {
+  try {
+    const mode = document.getElementById("af-mode")?.value;
+    const body = {
+      message: document.getElementById("af-msg")?.value || "",
+      channel_id: document.getElementById("af-channel")?.value,
+      role_id: document.getElementById("af-role")?.value || null,
+      mode,
+      use_embed: document.getElementById("af-embed")?.checked,
+      embed_title: document.getElementById("af-embed-title")?.value || null,
+    };
+    if (mode === "fixed") {
+      body.fixed_hour = parseInt(document.getElementById("af-hour")?.value || "20", 10);
+      body.fixed_minute = parseInt(document.getElementById("af-minute")?.value || "0", 10);
+    } else {
+      body.interval_minutes = parseInt(document.getElementById("af-interval")?.value || "1440", 10);
+    }
+    const data = await apiPost("/api/autofeed", body);
+    alert("AutoFeed created #" + data.id);
+  } catch (e) {}
 }
