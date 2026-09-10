@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bova's Bot — Control Panel</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="gate">
+    <div class="gate-box">
+      <img src="https://ik.imagekit.io/BassaniStudios/bovary%20pic%20meet/setembro/bova%20logo%20?updatedAt=1788801048503" alt="logo" width="64" height="64" style="border-radius:50%;box-shadow:0 0 20px rgba(192,96,255,0.5)" />
+      <h1>BOVA'S BOT</h1>
+      <p style="color:var(--dim);font-size:0.85rem;margin-bottom:1.2rem">Restricted access · Enter authorization key<br>(from <code>/panel</code> on Discord)</p>
+      <input type="password" id="gate-input" placeholder="ACCESS KEY" autocomplete="off" />
+      <button class="btn btn-primary" style="width:100%" onclick="tryUnlock()">AUTHENTICATE</button>
+      <div class="gate-error" id="gate-error">Invalid key. Use /panel on Discord.</div>
+    </div>
+  </div>
+
+  <div class="app" id="app" style="display:none">
+    <header class="header">
+      <div class="brand">
+        <img src="https://ik.imagekit.io/BassaniStudios/bovary%20pic%20meet/setembro/bova%20logo%20?updatedAt=1788801048503" alt="Bova's Bot" />
+        <div>
+          <div class="brand-title">Bova's Bot</div>
+          <div class="brand-sub">BOVARY CLUB SOCIETY · BOVA CORE</div>
+        </div>
+      </div>
+      <div class="status-bar">
+        <span><span class="dot"></span>SYSTEM ONLINE</span>
+        <span>SIGNAL: STRONG</span>
+        <span>LINK: SECURE</span>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab-btn active" data-tab="dashboard">DASHBOARD</button>
+      <button class="tab-btn" data-tab="commands">COMMANDS</button>
+      <button class="tab-btn" data-tab="autorole">AUTO-ROLE</button>
+      <button class="tab-btn" data-tab="embed">EMBED</button>
+      <button class="tab-btn" data-tab="meets">MEETS</button>
+      <button class="tab-btn" data-tab="timestamp">TIMESTAMP</button>
+      <button class="tab-btn" data-tab="stats">STATS</button>
+      <button class="tab-btn" data-tab="tutorial">TUTORIAL</button>
+      <button class="tab-btn" data-tab="config">CONFIG</button>
+    </nav>
+
+    <!-- DASHBOARD -->
+    <section class="panel active" id="panel-dashboard">
+      <div class="card">
+        <div class="card-title">SYSTEM STATUS</div>
+        <div class="grid-3">
+          <div class="stat-box"><div class="stat-value" id="stat-latency">—</div><div class="stat-label">Latency</div></div>
+          <div class="stat-box"><div class="stat-value">ONLINE</div><div class="stat-label">Bot Status</div></div>
+          <div class="stat-box"><div class="stat-value">12+</div><div class="stat-label">Slash Commands</div></div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">ACTIVE MODULES</div>
+          <ul style="list-style:none;font-size:0.9rem;color:var(--dim)">
+            <li>▸ <span style="color:var(--green)">●</span> Auto-reactions · Invites · Logs</li>
+            <li>▸ <span style="color:var(--green)">●</span> Moderation (delete / purge)</li>
+            <li>▸ <span style="color:var(--green)">●</span> Auto-Role · Meets · Stats</li>
+            <li>▸ <span style="color:var(--green)">●</span> Timestamp · Embed tools</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">QUICK ACCESS</div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.45rem">
+            <button class="btn btn-primary" onclick="switchTab('autorole')">Auto-Role</button>
+            <button class="btn btn-primary" onclick="switchTab('embed')">Embed Creator</button>
+            <button class="btn btn-primary" onclick="switchTab('meets')">Meet Announcer</button>
+            <button class="btn btn-primary" onclick="switchTab('timestamp')">Timestamp</button>
+            <button class="btn btn-ghost" onclick="switchTab('stats')">Stats</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMANDS -->
+    <section class="panel" id="panel-commands">
+      <div class="card">
+        <div class="card-title">SLASH COMMANDS</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Command</th><th>Category</th><th>Description</th><th>Permission</th></tr></thead>
+            <tbody>
+              <tr><td><span class="cmd">/ping</span></td><td><span class="badge badge-util">UTIL</span></td><td>Bot latency</td><td>Everyone</td></tr>
+              <tr><td><span class="cmd">/info</span></td><td><span class="badge badge-util">UTIL</span></td><td>Bot / server / user info</td><td>Everyone</td></tr>
+              <tr><td><span class="cmd">/timestamp</span></td><td><span class="badge badge-util">UTIL</span></td><td>Discord timestamp generator</td><td>Everyone</td></tr>
+              <tr><td><span class="cmd">/help</span></td><td><span class="badge badge-util">UTIL</span></td><td>Cyberpunk control panel</td><td>Everyone</td></tr>
+              <tr><td><span class="cmd">/delete</span></td><td><span class="badge badge-mod">MOD</span></td><td>Delete message by ID</td><td>Manage Messages</td></tr>
+              <tr><td><span class="cmd">/purge</span></td><td><span class="badge badge-mod">MOD</span></td><td>Purge 1–100 messages</td><td>Manage Messages</td></tr>
+              <tr><td><span class="cmd">/invitepanel</span></td><td><span class="badge badge-sys">INVITE</span></td><td>Post invite request panel</td><td>Designated channel</td></tr>
+              <tr><td><span class="cmd">/autorole_panel</span></td><td><span class="badge badge-sys">ROLE</span></td><td>Post auto-role panel</td><td>Manage Roles</td></tr>
+              <tr><td><span class="cmd">/autorole_add</span></td><td><span class="badge badge-sys">ROLE</span></td><td>Add role to panel</td><td>Manage Roles</td></tr>
+              <tr><td><span class="cmd">/meet</span></td><td><span class="badge badge-sys">MEET</span></td><td>Post car meet announcement</td><td>Manage Messages</td></tr>
+              <tr><td><span class="cmd">/stats</span></td><td><span class="badge badge-sys">STATS</span></td><td>Server activity stats</td><td>Manage Guild</td></tr>
+              <tr><td><span class="cmd">/topmedia</span></td><td><span class="badge badge-sys">STATS</span></td><td>Top reacted media</td><td>Manage Messages</td></tr>
+              <tr><td><span class="cmd">/panel</span></td><td><span class="badge badge-sys">STAFF</span></td><td>Reveal this web panel link</td><td>Staff role</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUTO-ROLE -->
+    <section class="panel" id="panel-autorole">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">AUTO-ROLE CONFIG</div>
+          <label>Embed title</label>
+          <input id="ar-title" value="Choose your roles" oninput="updateArPreview()" />
+          <label>Embed description</label>
+          <textarea id="ar-desc" oninput="updateArPreview()">React below to get access to the channels you care about.</textarea>
+          <label>Embed color (hex)</label>
+          <input id="ar-color" value="#B450FF" oninput="updateArPreview()" />
+          <hr style="border-color:var(--border);margin:0.8rem 0" />
+          <label>Add role button</label>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+            <input id="ar-role-id" placeholder="Role ID" style="flex:1;min-width:100px" />
+            <input id="ar-role-label" placeholder="Button label" style="flex:1;min-width:100px" />
+            <input id="ar-role-emoji" placeholder="Emoji (optional)" style="width:110px" />
+          </div>
+          <button class="btn btn-primary" onclick="addArRole()">ADD ROLE</button>
+          <div id="ar-role-list" style="margin-top:0.8rem"></div>
+          <p style="font-size:0.75rem;color:var(--dim);margin-top:0.8rem">
+            After configuring, use <code>/autorole_add</code> + <code>/autorole_panel</code> on Discord,
+            or export JSON and place it in <code>data/autorole.json</code>.
+          </p>
+          <button class="btn btn-ghost" onclick="exportArConfig()">EXPORT JSON</button>
+        </div>
+        <div class="card">
+          <div class="card-title">LIVE PREVIEW</div>
+          <div class="embed-preview" id="ar-preview"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EMBED CREATOR -->
+    <section class="panel" id="panel-embed">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">EMBED BUILDER</div>
+          <label>Title</label>
+          <input id="em-title" oninput="updateEmPreview()" placeholder="Embed title" />
+          <label>Description</label>
+          <textarea id="em-desc" oninput="updateEmPreview()" placeholder="Embed body text"></textarea>
+          <label>Color (hex)</label>
+          <input id="em-color" value="#00E5FF" oninput="updateEmPreview()" />
+          <label>Image URL</label>
+          <input id="em-image" oninput="updateEmPreview()" placeholder="https://..." />
+          <label>Footer</label>
+          <input id="em-footer" value="Bova's Bot · Bovary Club Society" oninput="updateEmPreview()" />
+          <label>Field 1 name / value</label>
+          <input id="em-f1n" oninput="updateEmPreview()" placeholder="Field name" />
+          <input id="em-f1v" oninput="updateEmPreview()" placeholder="Field value" />
+          <p style="font-size:0.75rem;color:var(--dim)">
+            Post via Discord using a webhook or staff bot command. To edit a posted embed, keep the message ID and re-send with updated content via your webhook tool, or use Discord's native edit if the bot owns the message.
+          </p>
+          <button class="btn btn-ghost" onclick="copyEmJson()">COPY JSON</button>
+        </div>
+        <div class="card">
+          <div class="card-title">LIVE PREVIEW</div>
+          <div class="embed-preview" id="em-preview"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEETS -->
+    <section class="panel" id="panel-meets">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">MEET ANNOUNCER</div>
+          <label>Title</label>
+          <input id="mt-title" oninput="updateMtPreview()" placeholder="Night Cruise" />
+          <label>Description</label>
+          <textarea id="mt-desc" oninput="updateMtPreview()" placeholder="Chill drive · clean cars · good vibes"></textarea>
+          <label>Date (São Paulo) DD/MM/YYYY HH:MM</label>
+          <input id="mt-date" oninput="updateMtPreview()" placeholder="25/12/2025 20:30" />
+          <label>Hosts</label>
+          <input id="mt-hosts" oninput="updateMtPreview()" placeholder="@Host1, @Host2" />
+          <label>Server</label>
+          <input id="mt-server" oninput="updateMtPreview()" placeholder="GTA Legacy / FiveM" />
+          <label>Mention role ID (optional)</label>
+          <input id="mt-role" oninput="updateMtPreview()" placeholder="Role ID" />
+          <label>Image URL</label>
+          <input id="mt-image" oninput="updateMtPreview()" placeholder="https://..." />
+          <label><input type="checkbox" id="mt-reminder" style="width:auto;margin-right:0.4rem" /> Enable 30-min reminder</label>
+          <label>Reminder channel ID</label>
+          <input id="mt-rem-ch" placeholder="Channel ID for reminder" />
+          <p style="font-size:0.75rem;color:var(--dim);margin-top:0.5rem">
+            Post on Discord with <code>/meet</code> using the same fields. Reminder fires in the chosen channel 30 minutes before start.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">LIVE PREVIEW</div>
+          <div class="embed-preview" id="mt-preview"></div>
+          <div id="mt-ts-hint" style="margin-top:0.75rem;font-size:0.8rem;color:var(--dim)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMESTAMP -->
+    <section class="panel" id="panel-timestamp">
+      <div class="card" style="max-width:560px">
+        <div class="card-title">DISCORD TIMESTAMP CONVERTER</div>
+        <p style="font-size:0.85rem;color:var(--dim);margin-bottom:0.9rem">
+          Same idea as <a href="https://sesh.fyi/timestamp/" target="_blank" style="color:var(--cyan)">sesh.fyi/timestamp</a> —
+          pick a local time, copy Discord markdown that shows correctly for every user.
+        </p>
+        <label>Date</label>
+        <input type="date" id="ts-date" oninput="updateTs()" />
+        <label>Time</label>
+        <input type="time" id="ts-time" oninput="updateTs()" />
+        <label>Timezone offset (hours from UTC)</label>
+        <input type="number" id="ts-offset" value="-3" step="0.5" oninput="updateTs()" />
+        <div class="ts-formats" id="ts-out"></div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="panel" id="panel-stats">
+      <div class="card">
+        <div class="card-title">SERVER STATISTICS</div>
+        <p style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">
+          Live numbers are collected by the bot into <code>data/stats.json</code>.
+          Use <code>/stats</code> and <code>/topmedia</code> on Discord for current data.
+          Below is a dashboard layout (demo values until you connect the bot API).
+        </p>
+        <div class="grid-3">
+          <div class="stat-box"><div class="stat-value" id="st-joins">—</div><div class="stat-label">Joins tracked</div></div>
+          <div class="stat-box"><div class="stat-value" id="st-leaves">—</div><div class="stat-label">Leaves tracked</div></div>
+          <div class="stat-box"><div class="stat-value" id="st-msgs">—</div><div class="stat-label">Messages tracked</div></div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">TOP CHATTERS / REACTORS</div>
+          <p style="font-size:0.8rem;color:var(--dim)">Run <code>/stats</code> in Discord for the live leaderboard (messages + reactions).</p>
+        </div>
+        <div class="card">
+          <div class="card-title">TOP MEDIA OF THE WEEK</div>
+          <p style="font-size:0.8rem;color:var(--dim);margin-bottom:0.6rem">
+            Bot tracks reaction scores on media posts. Staff can preview or publish:
+          </p>
+          <code>/topmedia</code> (preview) · <code>/topmedia post:True</code> (publish highlight)
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">PEAK HOURS &amp; DAYS</div>
+        <p style="font-size:0.8rem;color:var(--dim)">Tracked in UTC inside stats.json — peak hour and weekday shown via <code>/stats</code>.</p>
+      </div>
+    </section>
+
+    <!-- TUTORIAL -->
+    <section class="panel" id="panel-tutorial">
+      <div class="card">
+        <div class="card-title">HOW TO USE</div>
+        <ol style="padding-left:1.2rem;font-size:0.9rem;color:var(--dim)">
+          <li style="margin-bottom:0.6rem"><strong style="color:var(--text)">/help</strong> — Open the cyberpunk panel inside Discord.</li>
+          <li style="margin-bottom:0.6rem"><strong style="color:var(--text)">Auto-role</strong> — Configure roles here or with <code>/autorole_add</code>, then <code>/autorole_panel</code>.</li>
+          <li style="margin-bottom:0.6rem"><strong style="color:var(--text)">Meets</strong> — Build the announcement here, post with <code>/meet</code> (optional 30-min reminder).</li>
+          <li style="margin-bottom:0.6rem"><strong style="color:var(--text)">Stats</strong> — Bot tracks activity automatically; staff uses <code>/stats</code> and <code>/topmedia</code>.</li>
+          <li style="margin-bottom:0.6rem"><strong style="color:var(--text)">This panel</strong> — Staff only via <code>/panel</code> + access key.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- CONFIG -->
+    <section class="panel" id="panel-config">
+      <div class="card">
+        <div class="card-title">.ENV REFERENCE</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Variable</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>TOKEN</code></td><td>Discord bot token</td></tr>
+              <tr><td><code>PANEL_ACCESS_ROLE_ID</code></td><td>Role allowed to use /panel</td></tr>
+              <tr><td><code>PANEL_URL</code></td><td>This web panel URL</td></tr>
+              <tr><td><code>CHANNEL_IDS</code></td><td>Auto-react channels</td></tr>
+              <tr><td><code>LOG_CHANNEL_ID</code></td><td>Member / channel logs</td></tr>
+              <tr><td><code>MESSAGE_LOG_CHANNEL_ID</code></td><td>Message delete/edit logs</td></tr>
+              <tr><td><code>STAFF_LOG_CHANNEL</code></td><td>Invite requests</td></tr>
+              <tr><td><code>REQUIRED_INVITE_CHANNEL</code></td><td>Where /invitepanel works</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      BOVA CORE · STREET CIRCUIT · NEON GRID · ENGINES ONLINE
+      <div class="sig">created by Bassani</div>
+    </footer>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
