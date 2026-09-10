@@ -20,314 +20,333 @@
   </div>
 
   <div class="app" id="app" style="display:none">
-    <header class="header">
-      <div class="brand">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
         <img src="https://ik.imagekit.io/BassaniStudios/bovary%20pic%20meet/setembro/bova%20logo%20?updatedAt=1788801048503" alt="Bova's Bot" />
         <div>
-          <div class="brand-title">Bova's Bot</div>
-          <div class="brand-sub">BOVARY CLUB SOCIETY · BOVA CORE</div>
+          <div class="title">Bova's Bot</div>
+          <div class="sub">BOVA CORE</div>
         </div>
       </div>
-      <div class="status-bar">
-        <span><span class="dot"></span>SYSTEM ONLINE</span>
-        <span>SIGNAL: STRONG</span>
+      <nav class="sidebar-nav" id="tabs">
+        <button class="tab-btn active" data-tab="dashboard">◈ Dashboard</button>
+        <button class="tab-btn" data-tab="autorole">◈ Auto-Role</button>
+        <button class="tab-btn" data-tab="embed">◈ Embed</button>
+        <button class="tab-btn" data-tab="meets">◈ Meets</button>
+        <button class="tab-btn" data-tab="timestamp">◈ Timestamp</button>
+        <button class="tab-btn" data-tab="autofeeds">◈ Auto Feeds</button>
+        <button class="tab-btn" data-tab="tickets">◈ Tickets</button>
+        <button class="tab-btn" data-tab="boost">◈ Boost</button>
+        <button class="tab-btn" data-tab="weblogs">◈ WebLogs</button>
+        <button class="tab-btn" data-tab="stats">◈ Stats</button>
+        <button class="tab-btn" data-tab="namehistory">◈ Name History</button>
+        <button class="tab-btn" data-tab="commands">◈ Commands</button>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="dot"></span>SYSTEM ONLINE
       </div>
-    </header>
+    </aside>
 
-    <nav class="tabs" id="tabs">
-      <button class="tab-btn active" data-tab="dashboard">DASHBOARD</button>
-      <button class="tab-btn" data-tab="autorole">AUTO-ROLE</button>
-      <button class="tab-btn" data-tab="embed">EMBED</button>
-      <button class="tab-btn" data-tab="meets">MEETS</button>
-      <button class="tab-btn" data-tab="timestamp">TIMESTAMP</button>
-      <button class="tab-btn" data-tab="autofeeds">AUTO FEEDS</button>
-      <button class="tab-btn" data-tab="tickets">TICKETS</button>
-      <button class="tab-btn" data-tab="boost">BOOST</button>
-      <button class="tab-btn" data-tab="weblogs">WEBLOGS</button>
-      <button class="tab-btn" data-tab="stats">STATS</button>
-      <button class="tab-btn" data-tab="commands">COMMANDS</button>
-    </nav>
-
-    <section class="panel active" id="panel-dashboard">
-      <div class="card">
-        <div class="card-title">SYSTEM STATUS</div>
-        <div class="grid-3">
-          <div class="stat-box"><div class="stat-value">ONLINE</div><div class="stat-label">Bot</div></div>
-          <div class="stat-box"><div class="stat-value">NEW</div><div class="stat-label">Modules</div></div>
-          <div class="stat-box"><div class="stat-value">UI</div><div class="stat-label">Dropdowns</div></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">HOW POSTING WORKS</div>
-        <p style="font-size:0.85rem;color:var(--dim)">
-          This panel builds previews and Discord-ready slash command suggestions.
-          Posting to channels is done by the bot with commands like
-          <code>/meet</code>, <code>/ticket_panel</code>, <code>/autofeed_add</code>, <code>/autorole_panel</code>.
-          Copy the suggested command from each tool after configuring options.
-        </p>
-      </div>
-    </section>
-
-    <!-- AUTO-ROLE -->
-    <section class="panel" id="panel-autorole">
-      <div class="grid-2">
+    <main class="main">
+            <section class="panel active" id="panel-dashboard">
         <div class="card">
-          <div class="card-title">AUTO-ROLE CONFIG</div>
-          <label>Embed title</label>
-          <input id="ar-title" value="Choose your roles" oninput="updateArPreview()" />
-          <label>Embed description</label>
-          <textarea id="ar-desc" oninput="updateArPreview()">Select a role below to unlock channels.</textarea>
-          <label>Color</label>
-          <input type="color" id="ar-color" value="#B450FF" oninput="updateArPreview()" />
-          <hr style="border-color:var(--border);margin:0.8rem 0" />
-          <label>Role (select)</label>
-          <select id="ar-role-select"></select>
-          <label>Button label</label>
-          <input id="ar-role-label" placeholder="Auto-fills from role name" />
-          <label>Emoji (select)</label>
-          <select id="ar-emoji-select"></select>
-          <button class="btn btn-primary" onclick="addArRole()">ADD ROLE BUTTON</button>
-          <div id="ar-role-list" style="margin-top:0.8rem"></div>
-          <p style="font-size:0.75rem;color:var(--dim);margin-top:0.8rem" id="ar-cmd-hint"></p>
-          <button class="btn btn-ghost" onclick="exportArConfig()">EXPORT JSON</button>
-        </div>
-        <div class="card">
-          <div class="card-title">LIVE PREVIEW</div>
-          <div class="embed-preview" id="ar-preview"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- EMBED -->
-    <section class="panel" id="panel-embed">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-title">EMBED BUILDER</div>
-          <label>Title</label>
-          <input id="em-title" oninput="updateEmPreview()" />
-          <label>Description</label>
-          <textarea id="em-desc" oninput="updateEmPreview()"></textarea>
-          <label>Color</label>
-          <input type="color" id="em-color" value="#00E5FF" oninput="updateEmPreview()" />
-          <label>Image URL</label>
-          <input id="em-image" oninput="updateEmPreview()" placeholder="https://" />
-          <label>Footer</label>
-          <input id="em-footer" value="Bova's Bot · Bovary Club Society" oninput="updateEmPreview()" />
-          <label>Post to channel</label>
-          <select id="em-channel"></select>
-          <label>Mention role (optional)</label>
-          <select id="em-role"><option value="">— none —</option></select>
-          <p style="font-size:0.75rem;color:var(--dim)" id="em-cmd-hint">
-            Discord does not allow a static website to post as the bot without an API.
-            Use the generated webhook-style instructions or post via a staff webhook.
-            Suggested: copy JSON and use a Discord webhook URL for the selected channel.
+          <div class="card-title">BOVA CORE · DASHBOARD</div>
+          <div class="grid-3">
+            <div class="stat-box"><div class="stat-value">ONLINE</div><div class="stat-label">Bot status</div></div>
+            <div class="stat-box"><div class="stat-value">PRIVATE</div><div class="stat-label">Bovary Club Society</div></div>
+            <div class="stat-box"><div class="stat-value">v2.1</div><div class="stat-label">Control panel</div></div>
+          </div>
+          <p style="margin-top:1rem;font-size:0.85rem;color:var(--dim)">
+            Official private bot of <strong style="color:var(--text)">Bovary Club Society</strong>.
+            Built by <strong style="color:var(--purple)">Bassani</strong> · modular cogs · slash-first.
           </p>
-          <button class="btn btn-primary" onclick="copyEmWebhookPayload()">COPY WEBHOOK JSON</button>
-          <button class="btn btn-ghost" onclick="copyEmJson()">COPY RAW JSON</button>
         </div>
         <div class="card">
-          <div class="card-title">LIVE PREVIEW</div>
-          <div class="embed-preview" id="em-preview"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- MEETS -->
-    <section class="panel" id="panel-meets">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-title">MEET ANNOUNCER</div>
-          <label>Title</label>
-          <input id="mt-title" oninput="updateMtPreview()" placeholder="Night Cruise" />
-          <label>Description</label>
-          <textarea id="mt-desc" oninput="updateMtPreview()"></textarea>
-          <label>Date</label>
-          <input type="date" id="mt-date" oninput="updateMtPreview()" />
-          <label>Time (São Paulo)</label>
-          <input type="time" id="mt-time" oninput="updateMtPreview()" />
-          <label>Hosts (multi-select)</label>
-          <div class="chip-select" id="mt-hosts"></div>
-          <label>Server</label>
-          <select id="mt-server" onchange="updateMtPreview()"></select>
-          <label>Mention role</label>
-          <select id="mt-role" onchange="updateMtPreview()"><option value="">— none —</option></select>
-          <label>Image URL</label>
-          <input id="mt-image" oninput="updateMtPreview()" />
-          <label><input type="checkbox" id="mt-reminder" style="width:auto" /> Enable 30-min reminder</label>
-          <label>Reminder channel</label>
-          <select id="mt-rem-ch"></select>
-          <p style="font-size:0.8rem;color:var(--cyan);margin-top:0.5rem" id="mt-cmd-hint"></p>
-          <button class="btn btn-primary" onclick="copyMtCommand()">COPY /meet COMMAND</button>
+          <div class="card-title">QUICK ACTIONS</div>
+          <p style="font-size:0.85rem;color:var(--dim);line-height:1.7">
+            Use Discord slash commands for live actions. This panel prepares payloads and previews.<br/>
+            <code>/help</code> — in-Discord control panel<br/>
+            <code>/panel</code> — staff link + access key<br/>
+            <code>/stats</code> — numbers + chart images<br/>
+            <code>/namehistory</code> — member rename history
+          </p>
         </div>
         <div class="card">
-          <div class="card-title">LIVE PREVIEW</div>
-          <div class="embed-preview" id="mt-preview"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TIMESTAMP -->
-    <section class="panel" id="panel-timestamp">
-      <div class="card" style="max-width:560px">
-        <div class="card-title">DISCORD TIMESTAMP CONVERTER</div>
-        <label>Date</label>
-        <input type="date" id="ts-date" oninput="updateTs()" />
-        <label>Time</label>
-        <input type="time" id="ts-time" oninput="updateTs()" />
-        <label>Timezone offset (UTC)</label>
-        <input type="number" id="ts-offset" value="-3" step="0.5" oninput="updateTs()" />
-        <div class="preview-discord-ts" id="ts-live-preview">Select date & time</div>
-        <div class="ts-formats" id="ts-out"></div>
-      </div>
-    </section>
-
-    <!-- AUTO FEEDS -->
-    <section class="panel" id="panel-autofeeds">
-      <div class="card">
-        <div class="card-title">AUTO FEEDS</div>
-        <p style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">
-          Scheduled messages (Carl-bot style). Managed live by the bot via slash commands.
-        </p>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Message</th><th>Channel</th><th>Role</th><th>Next / Interval</th><th>Actions</th></tr>
-            </thead>
-            <tbody id="af-table-body">
-              <tr><td colspan="5" style="color:var(--dim)">Use <code>/autofeed_list</code> in Discord to see live feeds. Create with the form below.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">CREATE AUTO FEED</div>
-        <label>Message</label>
-        <textarea id="af-message" placeholder="Announcement text"></textarea>
-        <label>Channel</label>
-        <select id="af-channel"></select>
-        <label>Role mention (optional)</label>
-        <select id="af-role"><option value="">— none —</option></select>
-        <label>Interval (minutes)</label>
-        <input type="number" id="af-interval" value="1440" min="1" />
-        <label>First run in (minutes)</label>
-        <input type="number" id="af-start" value="5" min="1" />
-        <p style="font-size:0.8rem;color:var(--cyan)" id="af-cmd-hint"></p>
-        <button class="btn btn-primary" onclick="copyAfCommand()">COPY /autofeed_add COMMAND</button>
-      </div>
-    </section>
-
-    <!-- TICKETS -->
-    <section class="panel" id="panel-tickets">
-      <div class="card">
-        <div class="card-title">TICKETS / SUPPORT</div>
-        <p style="font-size:0.85rem;color:var(--dim);margin-bottom:0.75rem">
-          Inspired by Ticket Tool. Configure and control via Discord commands; panel posts a button for users.
-        </p>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
-            <tbody>
-              <tr><td><code>/ticket_panel</code></td><td>Post the open-ticket panel</td></tr>
-              <tr><td><code>/ticket_config</code></td><td>Category, staff role, log channel</td></tr>
-              <tr><td><code>/ticket_close</code></td><td>Close current ticket</td></tr>
-              <tr><td><code>/ticket_add</code> / <code>/ticket_remove</code></td><td>Add/remove users</td></tr>
-              <tr><td><code>/ticket_rename</code></td><td>Rename ticket channel</td></tr>
-              <tr><td><code>/ticket_transcript</code></td><td>Export last 1000 messages</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p style="margin-top:0.75rem;font-size:0.85rem;color:var(--dim)">
-          Panel button actions: <strong>Open Ticket</strong>, <strong>Close</strong>, <strong>Claim</strong>.
-        </p>
-      </div>
-    </section>
-
-    <!-- BOOST -->
-    <section class="panel" id="panel-boost">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-title">BOOST NOTIFICATION</div>
-          <label>Thank-you message (use {user} for mention)</label>
-          <textarea id="boost-msg">🚀 **Thank you for boosting the server, {user}!**
-
-Your support keeps **Bovary Club Society** alive — neon nights, clean meets, and good vibes.
-Welcome to the boosters crew. 💜✨</textarea>
-          <label>Channel</label>
-          <select id="boost-channel"></select>
-          <p style="font-size:0.8rem;color:var(--cyan)" id="boost-cmd-hint"></p>
-          <button class="btn btn-primary" onclick="copyBoostCommand()">COPY /boost_config COMMAND</button>
+          <div class="card-title">LOG ROUTING</div>
+          <p style="font-size:0.85rem;color:var(--dim);line-height:1.7">
+            Joins / leaves → <code>Info</code><br/>
+            Name changes + member registry → <code>bot-room</code><br/>
+            Message delete / edit (with media links) → message log<br/>
+            Boost thank-you → boost channel<br/>
+            Staff moderation actions → bot-room + message log
+          </p>
         </div>
         <div class="card">
-          <div class="card-title">EMBED PREVIEW</div>
-          <div class="embed-preview" id="boost-preview" style="border-left-color:#F47FFF">
-            <div class="et">💜 Server Boost!</div>
-            <div class="ed">Preview updates when you edit the message.</div>
-            <div class="foot">Large avatar of the booster is shown on the real embed</div>
+          <div class="card-title">POSTING FROM THIS PANEL</div>
+          <p style="font-size:0.85rem;color:var(--dim)">
+            Static GitHub Pages cannot post as the bot. Auto-Role, Embed, Meets and AutoFeeds
+            generate commands / JSON for you to run in Discord. A future bot API on Render can unlock one-click post.
+          </p>
+        </div>
+      </section>
+
+
+      <!-- AUTO-ROLE -->
+      <section class="panel" id="panel-autorole">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">AUTO-ROLE CONFIG</div>
+            <label>Embed title</label>
+            <input id="ar-title" value="Choose your roles" oninput="updateArPreview()" />
+            <label>Embed description</label>
+            <textarea id="ar-desc" oninput="updateArPreview()">Select a role below to unlock channels.</textarea>
+            <label>Color</label>
+            <input type="color" id="ar-color" value="#B450FF" oninput="updateArPreview()" />
+            <hr />
+            <label>Role (select) — add as many as you need</label>
+            <select id="ar-role-select"></select>
+            <label>Button label</label>
+            <input id="ar-role-label" placeholder="Auto-fills from role name" />
+            <label>Emoji (select)</label>
+            <select id="ar-emoji-select"></select>
+            <button class="btn btn-primary" onclick="addArRole()">ADD ROLE BUTTON</button>
+            <div id="ar-role-list" style="margin-top:0.8rem"></div>
+            <p style="font-size:0.75rem;color:var(--dim);margin-top:0.8rem" id="ar-cmd-hint"></p>
+            <button class="btn btn-ghost" onclick="exportArConfig()">EXPORT JSON</button>
+          </div>
+          <div class="card">
+            <div class="card-title">LIVE PREVIEW</div>
+            <div class="embed-preview" id="ar-preview"></div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- WEBLOGS -->
-    <section class="panel" id="panel-weblogs">
-      <div class="card">
-        <div class="card-title">WEBLOGS</div>
-        <p style="font-size:0.85rem;color:var(--dim);margin-bottom:0.75rem">
-          Structured server event logs (Carl-bot style). Configure the target channel with
-          <code>/weblogs_config</code>.
-        </p>
-        <label>Log channel</label>
-        <select id="wl-channel"></select>
-        <p style="font-size:0.8rem;color:var(--cyan)" id="wl-cmd-hint"></p>
-        <button class="btn btn-primary" onclick="copyWlCommand()">COPY /weblogs_config COMMAND</button>
-        <ul style="margin-top:1rem;font-size:0.85rem;color:var(--dim)">
-          <li>Member join / leave</li>
-          <li>Message delete</li>
-          <li>Channel create / delete</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- STATS -->
-    <section class="panel" id="panel-stats">
-      <div class="card">
-        <div class="card-title">STATS</div>
-        <p style="font-size:0.85rem;color:var(--dim)">
-          Live data via <code>/stats</code> and <code>/topmedia</code> on Discord.
-          Tracks chatters, reactions, joins/leaves, peak hours, top media.
-        </p>
-      </div>
-    </section>
-
-    <!-- COMMANDS -->
-    <section class="panel" id="panel-commands">
-      <div class="card">
-        <div class="card-title">SLASH COMMANDS</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Command</th><th>Module</th></tr></thead>
-            <tbody>
-              <tr><td><code>/help /ping /info /timestamp /panel</code></td><td>Utilities</td></tr>
-              <tr><td><code>/delete /purge</code></td><td>Moderation</td></tr>
-              <tr><td><code>/invitepanel</code></td><td>Invites</td></tr>
-              <tr><td><code>/autorole_panel /autorole_add</code></td><td>Auto-role</td></tr>
-              <tr><td><code>/meet</code></td><td>Meets</td></tr>
-              <tr><td><code>/stats /topmedia</code></td><td>Stats</td></tr>
-              <tr><td><code>/autofeed_add /list /remove /toggle</code></td><td>Auto Feeds</td></tr>
-              <tr><td><code>/ticket_panel /config /close /add /remove /rename /transcript</code></td><td>Tickets</td></tr>
-              <tr><td><code>/boost_config</code></td><td>Boost</td></tr>
-              <tr><td><code>/weblogs_config</code></td><td>WebLogs</td></tr>
-            </tbody>
-          </table>
+      <!-- EMBED -->
+      <section class="panel" id="panel-embed">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">EMBED BUILDER</div>
+            <label>Title</label>
+            <input id="em-title" oninput="updateEmPreview()" />
+            <label>Description</label>
+            <textarea id="em-desc" oninput="updateEmPreview()"></textarea>
+            <label>Color</label>
+            <input type="color" id="em-color" value="#00E5FF" oninput="updateEmPreview()" />
+            <label>Image URL</label>
+            <input id="em-image" oninput="updateEmPreview()" placeholder="https://" />
+            <label>Footer</label>
+            <input id="em-footer" value="Bova's Bot · Bovary Club Society" oninput="updateEmPreview()" />
+            <label>Post to channel</label>
+            <select id="em-channel"></select>
+            <label>Mention role (optional)</label>
+            <select id="em-role"><option value="">— none —</option></select>
+            <p style="font-size:0.75rem;color:var(--dim)" id="em-cmd-hint">
+              Static sites cannot post as the bot. Copy webhook JSON or use a staff webhook.
+            </p>
+            <button class="btn btn-primary" onclick="copyEmWebhookPayload()">COPY WEBHOOK JSON</button>
+            <button class="btn btn-ghost" onclick="copyEmJson()">COPY RAW JSON</button>
+          </div>
+          <div class="card">
+            <div class="card-title">LIVE PREVIEW</div>
+            <div class="embed-preview" id="em-preview"></div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <footer class="footer">
-      BOVA CORE · STREET CIRCUIT · NEON GRID · ENGINES ONLINE
-      <div class="sig">created by Bassani</div>
-    </footer>
+      <!-- MEETS -->
+      <section class="panel" id="panel-meets">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">MEET ANNOUNCER</div>
+            <label>Title</label>
+            <input id="mt-title" oninput="updateMtPreview()" placeholder="Night Cruise" />
+            <label>Description</label>
+            <textarea id="mt-desc" oninput="updateMtPreview()"></textarea>
+            <label>Date</label>
+            <input type="date" id="mt-date" oninput="updateMtPreview()" />
+            <label>Time</label>
+            <input type="time" id="mt-time" oninput="updateMtPreview()" />
+            <label>Timezone</label>
+            <select id="mt-tz" onchange="updateMtPreview()"></select>
+            <label>Hosts (multi-select)</label>
+            <div class="chip-select" id="mt-hosts"></div>
+            <label>Server</label>
+            <select id="mt-server" onchange="updateMtPreview()"></select>
+            <label>Mention role</label>
+            <select id="mt-role" onchange="updateMtPreview()"><option value="">— none —</option></select>
+            <label>Image URL</label>
+            <input id="mt-image" oninput="updateMtPreview()" />
+            <label><input type="checkbox" id="mt-reminder" style="width:auto" /> Enable ~30-min reminder</label>
+            <label>Reminder channel</label>
+            <select id="mt-rem-ch"></select>
+            <p style="font-size:0.8rem;color:var(--cyan);margin-top:0.5rem" id="mt-cmd-hint"></p>
+            <button class="btn btn-primary" onclick="copyMtCommand()">COPY /meet COMMAND</button>
+          </div>
+          <div class="card">
+            <div class="card-title">LIVE PREVIEW</div>
+            <div class="embed-preview" id="mt-preview"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TIMESTAMP -->
+      <section class="panel" id="panel-timestamp">
+        <div class="card" style="max-width:560px">
+          <div class="card-title">DISCORD TIMESTAMP CONVERTER</div>
+          <label>Date</label>
+          <input type="date" id="ts-date" oninput="updateTs()" />
+          <label>Time</label>
+          <input type="time" id="ts-time" oninput="updateTs()" />
+          <label>Timezone</label>
+          <select id="ts-tz" onchange="onTsTz()"></select>
+          <label>UTC offset (hours)</label>
+          <input type="number" id="ts-offset" value="-3" step="0.5" oninput="updateTs()" />
+          <div class="preview-discord-ts" id="ts-live-preview">Select date & time</div>
+          <div class="ts-formats" id="ts-out"></div>
+        </div>
+      </section>
+
+      <!-- AUTO FEEDS -->
+      <section class="panel" id="panel-autofeeds">
+        <div class="card">
+          <div class="card-title">AUTO FEEDS</div>
+          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">
+            Scheduled messages. Use Discord commands for live list.
+            Supports <strong>interval</strong> or <strong>fixed daily time</strong> + optional embed.
+          </p>
+          <label>Message</label>
+          <textarea id="af-msg" placeholder="Message or embed description"></textarea>
+          <label>Channel</label>
+          <select id="af-channel"></select>
+          <label>Role mention (optional)</label>
+          <select id="af-role"><option value="">— none —</option></select>
+          <label>Mode</label>
+          <select id="af-mode" onchange="toggleAfMode()">
+            <option value="interval">Interval (minutes)</option>
+            <option value="fixed">Fixed daily time (São Paulo)</option>
+          </select>
+          <div id="af-interval-box">
+            <label>Interval minutes</label>
+            <input type="number" id="af-interval" value="1440" min="1" max="10080" />
+          </div>
+          <div id="af-fixed-box" style="display:none">
+            <label>Timezone (for fixed daily time)</label>
+            <select id="af-tz"></select>
+            <label>Hour (0-23)</label>
+            <input type="number" id="af-hour" value="20" min="0" max="23" />
+            <label>Minute (0-59)</label>
+            <input type="number" id="af-minute" value="0" min="0" max="59" />
+          </div>
+          <label><input type="checkbox" id="af-embed" style="width:auto" /> Send as embed</label>
+          <label>Embed title (optional)</label>
+          <input id="af-embed-title" />
+          <p style="font-size:0.8rem;color:var(--cyan);margin-top:0.5rem" id="af-cmd-hint"></p>
+          <button class="btn btn-primary" onclick="copyAfCommand()">COPY /autofeed_add COMMAND</button>
+        </div>
+      </section>
+
+      <!-- TICKETS -->
+      <section class="panel" id="panel-tickets">
+        <div class="card">
+          <div class="card-title">TICKETS</div>
+          <p style="font-size:0.85rem;color:var(--dim)">
+            Configure category, staff role and log channel with
+            <code>/ticket_config</code>, then post the panel with <code>/ticket_panel</code>.
+            Closing a ticket auto-generates a transcript saved under <code>data/transcripts/</code>
+            and logs to bot-room.
+          </p>
+          <p style="font-size:0.85rem;color:var(--dim);margin-top:0.8rem">
+            Commands: <code>/ticket_panel</code> <code>/ticket_config</code> <code>/ticket_close</code>
+            <code>/ticket_add</code> <code>/ticket_remove</code> <code>/ticket_rename</code> <code>/ticket_transcript</code>
+          </p>
+        </div>
+      </section>
+
+      <!-- BOOST -->
+      <section class="panel" id="panel-boost">
+        <div class="card">
+          <div class="card-title">BOOST THANK-YOU</div>
+          <p style="font-size:0.85rem;color:var(--dim)">
+            Default channel: <code>BOOST_CHANNEL_ID</code> (1384173136638906407).
+            Configure with <code>/boost_config</code>.
+          </p>
+        </div>
+      </section>
+
+      <!-- WEBLOGS -->
+      <section class="panel" id="panel-weblogs">
+        <div class="card">
+          <div class="card-title">WEBLOGS</div>
+          <p style="font-size:0.85rem;color:var(--dim)">
+            Toggles via <code>/weblogs_config</code>.<br/>
+            Joins/leaves → Info channel<br/>
+            Channel create/delete + staff actions → bot-room<br/>
+            Message delete/edit → message log channel
+          </p>
+        </div>
+      </section>
+
+      <!-- STATS -->
+      <section class="panel" id="panel-stats">
+        <div class="card">
+          <div class="card-title">STATS</div>
+          <p style="font-size:0.85rem;color:var(--dim)">
+            Peak hours use São Paulo timezone. Weekly media reset runs on Mondays (SP).
+            Commands: <code>/stats</code> <code>/topmedia</code>
+          </p>
+        </div>
+      </section>
+
+      <!-- COMMANDS -->
+      
+      <section class="panel" id="panel-namehistory">
+        <div class="card">
+          <div class="card-title">NAME HISTORY ARCHIVE</div>
+          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">
+            The bot stores join snapshots and every display/username change in <code>data/namehistory.json</code>
+            and posts live alerts to <code>bot-room</code>.
+            Live archive in this static panel is limited — export from Discord or paste JSON below for local view.
+          </p>
+          <label>Paste exported namehistory.json (from /namehistory_export)</label>
+          <textarea id="nh-json" rows="8" placeholder='{"members":{...}}'></textarea>
+          <button class="btn btn-primary" onclick="renderNameHistory()">RENDER ARCHIVE</button>
+          <div id="nh-out" style="margin-top:1rem;font-size:0.85rem"></div>
+          <p style="font-size:0.8rem;color:var(--dim);margin-top:0.8rem">
+            Discord: <code>/namehistory @user</code> · <code>/namehistory_export</code>
+          </p>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-commands">
+        <div class="card">
+          <div class="card-title">ALL SLASH COMMANDS</div>
+          <div style="font-size:0.85rem;line-height:1.8;color:var(--dim)">
+            <strong style="color:var(--text)">Moderation</strong><br/>
+            /delete · /purge<br/><br/>
+            <strong style="color:var(--text)">Utilities</strong><br/>
+            /ping · /info · /timestamp · /help · /panel<br/><br/>
+            <strong style="color:var(--text)">Invite</strong><br/>
+            /invitepanel<br/><br/>
+            <strong style="color:var(--text)">Auto-Role</strong><br/>
+            /autorole_panel · /autorole_add · /autorole_remove · /autorole_list · /autorole_config<br/><br/>
+            <strong style="color:var(--text)">Meets</strong><br/>
+            /meet<br/><br/>
+            <strong style="color:var(--text)">Stats</strong><br/>
+            /stats · /topmedia<br/><br/>
+            <strong style="color:var(--text)">Tickets</strong><br/>
+            /ticket_panel · /ticket_config · /ticket_close · /ticket_add · /ticket_remove · /ticket_rename · /ticket_transcript<br/><br/>
+            <strong style="color:var(--text)">Auto Feeds</strong><br/>
+            /autofeed_add · /autofeed_list · /autofeed_remove · /autofeed_toggle<br/><br/>
+            <strong style="color:var(--text)">Boost</strong><br/>
+            /boost_config<br/><br/>
+            <strong style="color:var(--text)">WebLogs</strong><br/>
+            /weblogs_config
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
+
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
 </body>

@@ -1,5 +1,58 @@
+/** Access key — change via PANEL_ACCESS_KEY in bot .env and update here for the static panel */
 const ACCESS_KEY = "BOVA-CORE-2026";
 const C = () => window.BOVA_CONFIG || { roles: [], channels: [], hosts: [], servers: [], emojis: [] };
+const TZ_LIST = [
+  { id: "America/Sao_Paulo", label: "São Paulo (UTC-3)", offset: -3 },
+  { id: "UTC", label: "UTC", offset: 0 },
+  { id: "America/New_York", label: "New York (UTC-5)", offset: -5 },
+  { id: "America/Los_Angeles", label: "Los Angeles (UTC-8)", offset: -8 },
+  { id: "Europe/London", label: "London (UTC+0)", offset: 0 },
+  { id: "Europe/Paris", label: "Paris (UTC+1)", offset: 1 },
+  { id: "Asia/Tokyo", label: "Tokyo (UTC+9)", offset: 9 },
+];
+function fillTz(sel, preferred) {
+  if (!sel) return;
+  sel.innerHTML = "";
+  TZ_LIST.forEach((t) => {
+    const o = document.createElement("option");
+    o.value = String(t.offset);
+    o.textContent = t.label;
+    o.dataset.id = t.id;
+    if (preferred != null && t.offset === preferred) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+function onTsTz() {
+  const sel = document.getElementById("ts-tz");
+  const off = document.getElementById("ts-offset");
+  if (sel && off) off.value = sel.value;
+  updateTs();
+}
+function renderNameHistory() {
+  const raw = document.getElementById("nh-json")?.value || "";
+  const out = document.getElementById("nh-out");
+  if (!out) return;
+  try {
+    const data = JSON.parse(raw);
+    const members = data.members || data;
+    const rows = Object.values(members).slice(0, 80).map((m) => {
+      const names = (m.names || []).slice(-5).map((n) => {
+        if (n.reason === "rename")
+          return `${(n.previous_display_name||"?")} → <strong>${esc(n.display_name||"?")}</strong>`;
+        return `first: <strong>${esc(n.display_name||"?")}</strong>`;
+      }).join("<br/>");
+      return `<div class="card" style="margin-bottom:0.5rem">
+        <strong>${esc(m.display_name||m.username||m.user_id)}</strong>
+        <code>${m.user_id||""}</code>
+        <div style="color:var(--dim);margin-top:0.4rem;font-size:0.8rem">${names||"—"}</div>
+      </div>`;
+    });
+    out.innerHTML = rows.join("") || "<p style='color:var(--dim)'>No members in file.</p>";
+  } catch (e) {
+    out.innerHTML = `<p style="color:#ff4060">Invalid JSON: ${esc(e.message)}</p>`;
+  }
+}
+
 
 function tryUnlock() {
   const input = document.getElementById("gate-input");
@@ -7,7 +60,7 @@ function tryUnlock() {
   if (input.value.trim() === ACCESS_KEY) {
     sessionStorage.setItem("bova_auth", "1");
     document.getElementById("gate").classList.add("hidden");
-    document.getElementById("app").style.display = "block";
+    document.getElementById("app").style.display = "flex";
     err.style.display = "none";
     initAll();
   } else {
@@ -19,7 +72,7 @@ document.getElementById("gate-input")?.addEventListener("keydown", (e) => {
 });
 if (sessionStorage.getItem("bova_auth") === "1") {
   document.getElementById("gate").classList.add("hidden");
-  document.getElementById("app").style.display = "block";
+  document.getElementById("app").style.display = "flex";
   setTimeout(initAll, 30);
 }
 
@@ -76,8 +129,7 @@ function renderArRoles() {
   updateArPreview();
   const hint = document.getElementById("ar-cmd-hint");
   if (hint && arRoles.length) {
-    const r = arRoles[arRoles.length - 1];
-    hint.innerHTML = `After export / setup, run in Discord:<br><code>/autorole_add role:${r.label} label:${r.label}</code> then <code>/autorole_panel</code>`;
+    hint.innerHTML = `Roles ready (${arRoles.length}). In Discord run <code>/autorole_add</code> for each, then <code>/autorole_panel</code>.`;
   }
 }
 function addArRole() {
@@ -90,6 +142,7 @@ function addArRole() {
   arRoles = arRoles.filter((r) => String(r.role_id) !== id);
   arRoles.push({ role_id: id, label, emoji });
   renderArRoles();
+  document.getElementById("ar-role-label").value = "";
 }
 function removeArRole(i) {
   arRoles.splice(i, 1);
@@ -99,138 +152,115 @@ function updateArPreview() {
   const title = document.getElementById("ar-title")?.value || "";
   const desc = document.getElementById("ar-desc")?.value || "";
   const color = document.getElementById("ar-color")?.value || "#B450FF";
-  const el = document.getElementById("ar-preview");
-  if (!el) return;
-  el.style.borderLeftColor = color;
-  const buttons = arRoles
-    .map(
-      (r) =>
-        `<span style="display:inline-block;margin:3px;padding:4px 10px;background:#2b2d31;border-radius:3px;font-size:0.8rem">${r.emoji || ""} ${esc(r.label)}</span>`
-    )
-    .join("");
-  el.innerHTML = `<div class="et">${esc(title)}</div><div class="ed">${esc(desc)}</div>
-    <div style="margin-top:8px">${buttons || "<em style='color:#949ba4'>No roles yet</em>"}</div>
-    <div class="foot">Bova's Bot · Auto-Role</div>`;
+  const box = document.getElementById("ar-preview");
+  if (!box) return;
+  const btns = arRoles.map((r) => `${r.emoji || ""} ${esc(r.label)}`).join(" · ") || "(no roles yet)";
+  box.innerHTML = `<div class="ep-title" style="border-left:4px solid ${color};padding-left:8px">${esc(title)}</div>
+    <div class="ep-desc">${esc(desc)}</div>
+    <div style="margin-top:0.6rem;font-size:0.8rem;color:var(--dim)">Buttons: ${btns}</div>`;
 }
 function exportArConfig() {
-  const colorRaw = document.getElementById("ar-color").value || "#B450FF";
-  const cfg = {
-    title: document.getElementById("ar-title").value,
-    description: document.getElementById("ar-desc").value,
-    color: parseInt(colorRaw.replace("#", ""), 16),
-    roles: arRoles.map((r) => ({ ...r, role_id: Number(r.role_id) || r.role_id })),
+  const data = {
+    title: document.getElementById("ar-title")?.value,
+    description: document.getElementById("ar-desc")?.value,
+    color: parseInt((document.getElementById("ar-color")?.value || "#B450FF").slice(1), 16),
+    roles: arRoles,
   };
-  copyText(JSON.stringify(cfg, null, 2));
+  copyText(JSON.stringify(data, null, 2));
 }
 
 /* ---------- Embed ---------- */
 function updateEmPreview() {
-  const el = document.getElementById("em-preview");
-  if (!el) return;
-  const color = document.getElementById("em-color")?.value || "#00E5FF";
-  el.style.borderLeftColor = color;
   const title = document.getElementById("em-title")?.value || "";
   const desc = document.getElementById("em-desc")?.value || "";
+  const color = document.getElementById("em-color")?.value || "#00E5FF";
   const img = document.getElementById("em-image")?.value || "";
-  const foot = document.getElementById("em-footer")?.value || "";
-  let html = "";
-  if (title) html += `<div class="et">${esc(title)}</div>`;
-  if (desc) html += `<div class="ed">${esc(desc)}</div>`;
-  if (img) html += `<img class="thumb" src="${esc(img)}" onerror="this.style.display='none'" />`;
-  if (foot) html += `<div class="foot">${esc(foot)}</div>`;
-  el.innerHTML = html || "<em style='color:#949ba4'>Fill the form</em>";
-}
-function copyEmJson() {
-  copyText(
-    JSON.stringify(
-      {
-        title: document.getElementById("em-title").value,
-        description: document.getElementById("em-desc").value,
-        color: document.getElementById("em-color").value,
-        image: document.getElementById("em-image").value,
-        footer: document.getElementById("em-footer").value,
-        channel_id: document.getElementById("em-channel")?.value,
-        role_id: document.getElementById("em-role")?.value,
-      },
-      null,
-      2
-    )
-  );
+  const footer = document.getElementById("em-footer")?.value || "";
+  const box = document.getElementById("em-preview");
+  if (!box) return;
+  box.style.borderLeftColor = color;
+  box.innerHTML = `<div class="ep-title">${esc(title)}</div>
+    <div class="ep-desc">${esc(desc)}</div>
+    ${img ? `<img src="${esc(img)}" alt="" onerror="this.style.display='none'" />` : ""}
+    <div style="margin-top:0.5rem;font-size:0.75rem;color:var(--dim)">${esc(footer)}</div>`;
 }
 function copyEmWebhookPayload() {
-  const color = document.getElementById("em-color").value || "#00E5FF";
   const payload = {
-    content: document.getElementById("em-role")?.value
-      ? `<@&${document.getElementById("em-role").value}>`
-      : "",
-    embeds: [
-      {
-        title: document.getElementById("em-title").value,
-        description: document.getElementById("em-desc").value,
-        color: parseInt(color.replace("#", ""), 16),
-        image: document.getElementById("em-image").value
-          ? { url: document.getElementById("em-image").value }
-          : undefined,
-        footer: { text: document.getElementById("em-footer").value },
-      },
-    ],
+    content: (() => {
+      const r = document.getElementById("em-role");
+      return r?.value ? `<@&${r.value}>` : undefined;
+    })(),
+    embeds: [{
+      title: document.getElementById("em-title")?.value || undefined,
+      description: document.getElementById("em-desc")?.value || undefined,
+      color: parseInt((document.getElementById("em-color")?.value || "#00E5FF").slice(1), 16),
+      image: document.getElementById("em-image")?.value ? { url: document.getElementById("em-image").value } : undefined,
+      footer: document.getElementById("em-footer")?.value ? { text: document.getElementById("em-footer").value } : undefined,
+    }],
   };
-  const ch = document.getElementById("em-channel");
-  const chName = ch?.options[ch.selectedIndex]?.text || "channel";
   copyText(JSON.stringify(payload, null, 2));
-  alert("Webhook JSON copied.\nCreate a webhook in #" + chName + " and POST this JSON to the webhook URL.");
+}
+function copyEmJson() {
+  copyEmWebhookPayload();
 }
 
 /* ---------- Meets ---------- */
+let mtSelectedHosts = [];
+function renderMtHosts() {
+  const box = document.getElementById("mt-hosts");
+  if (!box) return;
+  const hosts = C().hosts || [];
+  box.innerHTML = hosts
+    .map(
+      (h) =>
+        `<span class="chip ${mtSelectedHosts.includes(h) ? "selected" : ""}" onclick="toggleMtHost('${h}')">${esc(h)}</span>`
+    )
+    .join("");
+}
+function toggleMtHost(h) {
+  if (mtSelectedHosts.includes(h)) mtSelectedHosts = mtSelectedHosts.filter((x) => x !== h);
+  else mtSelectedHosts.push(h);
+  renderMtHosts();
+  updateMtPreview();
+}
 function updateMtPreview() {
-  const el = document.getElementById("mt-preview");
-  if (!el) return;
   const title = document.getElementById("mt-title")?.value || "Meet";
   const desc = document.getElementById("mt-desc")?.value || "";
-  const date = document.getElementById("mt-date")?.value;
-  const time = document.getElementById("mt-time")?.value || "20:00";
-  const hosts = [...document.querySelectorAll("#mt-hosts input:checked")].map((x) => x.value);
+  const date = document.getElementById("mt-date")?.value || "";
+  const time = document.getElementById("mt-time")?.value || "";
   const server = document.getElementById("mt-server")?.value || "";
   const img = document.getElementById("mt-image")?.value || "";
-  let dateLabel = "Set date & time";
-  let slashDate = "";
-  if (date) {
-    const [y, m, d] = date.split("-");
-    slashDate = `${d}/${m}/${y} ${time}`;
-    dateLabel = slashDate + " (São Paulo)";
-  }
-  el.style.borderLeftColor = "#B450FF";
-  el.innerHTML = `
-    <div class="et">🚗 ${esc(title)}</div>
-    <div class="ed">${esc(desc)}</div>
-    <div class="ef"><div class="efn">📅 Date & Time</div><div class="efv">${esc(dateLabel)}</div></div>
-    <div class="ef"><div class="efn">👤 Hosts</div><div class="efv">${esc(hosts.join(", ") || "—")}</div></div>
-    <div class="ef"><div class="efn">🖥️ Server</div><div class="efv">${esc(server)}</div></div>
-    ${img ? `<img class="thumb" src="${esc(img)}" onerror="this.style.display='none'" />` : ""}
-    <div class="foot">Bova's Bot · Bovary Club Society</div>`;
+  const box = document.getElementById("mt-preview");
+  if (!box) return;
+  box.innerHTML = `<div class="ep-title">🚗 ${esc(title)}</div>
+    <div class="ep-desc">${esc(desc)}</div>
+    <div style="margin-top:0.5rem;font-size:0.85rem">📅 ${esc(date)} ${esc(time)} (SP)<br/>👤 ${esc(mtSelectedHosts.join(", ") || "—")}<br/>🖥️ ${esc(server)}</div>
+    ${img ? `<img src="${esc(img)}" alt="" onerror="this.style.display='none'" />` : ""}`;
   const hint = document.getElementById("mt-cmd-hint");
-  if (hint) {
-    hint.textContent = slashDate
-      ? `Ready — use Copy /meet command and paste in Discord`
-      : `Select date and time`;
+  if (hint && date && time) {
+    const [y, m, d] = date.split("-");
+    const dt = `${d}/${m}/${y} ${time}`;
+    hint.textContent = `Suggested: /meet title:${title} date_time:${dt} ...`;
   }
 }
 function copyMtCommand() {
-  const title = document.getElementById("mt-title").value;
-  const desc = document.getElementById("mt-desc").value;
-  const date = document.getElementById("mt-date").value;
-  const time = document.getElementById("mt-time").value || "20:00";
+  const title = document.getElementById("mt-title")?.value || "Meet";
+  const desc = document.getElementById("mt-desc")?.value || "";
+  const date = document.getElementById("mt-date")?.value || "";
+  const time = document.getElementById("mt-time")?.value || "20:00";
+  const server = document.getElementById("mt-server")?.value || "";
+  const img = document.getElementById("mt-image")?.value || "";
+  const role = document.getElementById("mt-role")?.value || "";
+  const rem = document.getElementById("mt-reminder")?.checked;
+  const remCh = document.getElementById("mt-rem-ch")?.value || "";
   if (!date) return alert("Select a date");
   const [y, m, d] = date.split("-");
-  const dateTime = `${d}/${m}/${y} ${time}`;
-  const hosts = [...document.querySelectorAll("#mt-hosts input:checked")].map((x) => x.value).join(", ");
-  const server = document.getElementById("mt-server").value;
-  const image = document.getElementById("mt-image").value;
-  const reminder = document.getElementById("mt-reminder").checked;
-  const remCh = document.getElementById("mt-rem-ch").value;
-  let cmd = `/meet title:${title} description:${desc} date_time:${dateTime} hosts:${hosts} server:${server}`;
-  if (image) cmd += ` image_url:${image}`;
-  if (reminder && remCh) cmd += ` enable_reminder:True`;
+  const dt = `${d}/${m}/${y} ${time}`;
+  const tz = document.getElementById("mt-tz")?.value || "-3";
+  let cmd = `/meet title:${title} description:${desc} date_time:${dt} hosts:${mtSelectedHosts.join(", ") || "TBD"} server:${server} timezone_offset:${tz}`;
+  if (role) cmd += ` mention_role:@Role`;
+  if (img) cmd += ` image_url:${img}`;
+  if (rem && remCh) cmd += ` enable_reminder:True reminder_channel:#channel`;
   copyText(cmd);
 }
 
@@ -238,65 +268,63 @@ function copyMtCommand() {
 function updateTs() {
   const date = document.getElementById("ts-date")?.value;
   const time = document.getElementById("ts-time")?.value || "00:00";
-  const offset = parseFloat(document.getElementById("ts-offset")?.value ?? "-3");
-  const out = document.getElementById("ts-out");
+  const offset = parseFloat(document.getElementById("ts-offset")?.value || "-3");
   const live = document.getElementById("ts-live-preview");
-  if (!out) return;
-  if (!date) {
-    out.innerHTML = "";
-    if (live) live.textContent = "Select date & time";
-    return;
-  }
+  const out = document.getElementById("ts-out");
+  if (!date || !live || !out) return;
   const [y, m, d] = date.split("-").map(Number);
   const [hh, mm] = time.split(":").map(Number);
   const utcMs = Date.UTC(y, m - 1, d, hh, mm) - offset * 3600 * 1000;
   const unix = Math.floor(utcMs / 1000);
-  const local = new Date(utcMs);
-  if (live) {
-    live.innerHTML = `<strong>Preview:</strong> ${local.toUTCString()}<br>
-      Relative style will show as Discord relative time for each user.<br>
-      <code>&lt;t:${unix}:F&gt;</code>`;
-  }
-  const formats = [
-    ["F", "Full"],
-    ["f", "Short full"],
-    ["D", "Date"],
-    ["t", "Time"],
-    ["R", "Relative"],
-  ];
-  out.innerHTML = formats
-    .map(
-      ([code, label]) =>
-        `<div class="ts-row"><span><strong>${label}</strong> · <code>&lt;t:${unix}:${code}&gt;</code></span>
-      <button class="btn btn-ghost" onclick="copyText('<t:${unix}:${code}>')">COPY</button></div>`
-    )
-    .join("");
+  live.textContent = `Unix: ${unix} · Local preview`;
+  out.innerHTML = `
+    <code>&lt;t:${unix}:F&gt;</code> Full<br/>
+    <code>&lt;t:${unix}:f&gt;</code> Short full<br/>
+    <code>&lt;t:${unix}:D&gt;</code> Date<br/>
+    <code>&lt;t:${unix}:t&gt;</code> Time<br/>
+    <code>&lt;t:${unix}:R&gt;</code> Relative`;
 }
 
-/* ---------- Auto feeds / boost / weblogs helpers ---------- */
+/* ---------- Auto Feeds ---------- */
+function toggleAfMode() {
+  const mode = document.getElementById("af-mode")?.value;
+  document.getElementById("af-interval-box").style.display = mode === "interval" ? "block" : "none";
+  document.getElementById("af-fixed-box").style.display = mode === "fixed" ? "block" : "none";
+  updateAfHint();
+}
+function updateAfHint() {
+  const hint = document.getElementById("af-cmd-hint");
+  if (!hint) return;
+  const mode = document.getElementById("af-mode")?.value;
+  if (mode === "fixed") {
+    const h = document.getElementById("af-hour")?.value || 20;
+    const m = document.getElementById("af-minute")?.value || 0;
+    hint.textContent = `Fixed daily at ${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")} (São Paulo)`;
+  } else {
+    hint.textContent = `Interval every ${document.getElementById("af-interval")?.value || 1440} minutes`;
+  }
+}
 function copyAfCommand() {
-  const msg = document.getElementById("af-message").value;
+  const msg = document.getElementById("af-msg")?.value || "";
   const ch = document.getElementById("af-channel");
-  const chName = ch.options[ch.selectedIndex]?.text || "";
-  const interval = document.getElementById("af-interval").value;
-  const start = document.getElementById("af-start").value;
-  const cmd = `/autofeed_add message:${msg} channel:#${chName} interval_minutes:${interval} start_in_minutes:${start}`;
-  document.getElementById("af-cmd-hint").textContent = "Paste in Discord (pick channel from slash UI if name differs)";
+  const chName = ch?.options[ch.selectedIndex]?.text || "#channel";
+  const mode = document.getElementById("af-mode")?.value;
+  const useEmbed = document.getElementById("af-embed")?.checked;
+  const embTitle = document.getElementById("af-embed-title")?.value || "";
+  let cmd = `/autofeed_add message:${msg} channel:${chName}`;
+  if (mode === "fixed") {
+    cmd += ` fixed_hour:${document.getElementById("af-hour")?.value || 20} fixed_minute:${document.getElementById("af-minute")?.value || 0}`;
+  } else {
+    cmd += ` interval_minutes:${document.getElementById("af-interval")?.value || 1440}`;
+  }
+  if (useEmbed) {
+    cmd += ` use_embed:True`;
+    if (embTitle) cmd += ` embed_title:${embTitle}`;
+  }
   copyText(cmd);
 }
-function copyBoostCommand() {
-  const msg = document.getElementById("boost-msg").value;
-  const ch = document.getElementById("boost-channel");
-  const chName = ch.options[ch.selectedIndex]?.text || "";
-  document.getElementById("boost-preview").querySelector(".ed").textContent = msg.replace("{user}", "@Booster");
-  copyText(`/boost_config channel:#${chName} message:${msg} enabled:True`);
-}
-function copyWlCommand() {
-  const ch = document.getElementById("wl-channel");
-  const chName = ch.options[ch.selectedIndex]?.text || "";
-  copyText(`/weblogs_config channel:#${chName}`);
-}
 
+/* ---------- Init ---------- */
 function initAll() {
   const cfg = C();
   fillSelect(document.getElementById("ar-role-select"), cfg.roles);
@@ -308,44 +336,22 @@ function initAll() {
   fillSelect(document.getElementById("mt-rem-ch"), cfg.channels);
   fillSelect(document.getElementById("af-channel"), cfg.channels);
   fillSelect(document.getElementById("af-role"), cfg.roles, true);
-  fillSelect(document.getElementById("boost-channel"), cfg.channels);
-  fillSelect(document.getElementById("wl-channel"), cfg.channels);
 
-  const hostBox = document.getElementById("mt-hosts");
-  if (hostBox) {
-    hostBox.innerHTML = cfg.hosts
-      .map(
-        (h) =>
-          `<label class="chip"><input type="checkbox" value="${h}" onchange="updateMtPreview()" /> ${h}</label>`
-      )
-      .join("");
-  }
-
-  // default role label
-  document.getElementById("ar-role-select")?.addEventListener("change", (e) => {
-    const opt = e.target.options[e.target.selectedIndex];
-    document.getElementById("ar-role-label").value = opt?.text || "";
+  document.getElementById("ar-role-select")?.addEventListener("change", () => {
+    const sel = document.getElementById("ar-role-select");
+    const name = sel.options[sel.selectedIndex]?.text || "";
+    const label = document.getElementById("ar-role-label");
+    if (label && !label.value) label.value = name;
   });
 
-  document.getElementById("boost-msg")?.addEventListener("input", () => {
-    const el = document.getElementById("boost-preview")?.querySelector(".ed");
-    if (el) el.textContent = document.getElementById("boost-msg").value.replace("{user}", "@Booster");
-  });
-
-  const now = new Date();
-  const ds = now.toISOString().slice(0, 10);
-  const ts = now.toTimeString().slice(0, 5);
-  ["ts-date", "mt-date"].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el && !el.value) el.value = ds;
-  });
-  ["ts-time", "mt-time"].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el && !el.value) el.value = ts;
-  });
-
+  fillTz(document.getElementById("mt-tz"), -3);
+  fillTz(document.getElementById("ts-tz"), -3);
+  fillTz(document.getElementById("af-tz"), -3);
   renderArRoles();
+  renderMtHosts();
+  updateArPreview();
   updateEmPreview();
   updateMtPreview();
   updateTs();
+  toggleAfMode();
 }
