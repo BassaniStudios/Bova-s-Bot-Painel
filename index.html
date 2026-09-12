@@ -33,6 +33,7 @@
         <button class="tab-btn" data-tab="autorole">◈ Auto-Role</button>
         <button class="tab-btn" data-tab="embed">◈ Embed</button>
         <button class="tab-btn" data-tab="meets">◈ Meets</button>
+        <button class="tab-btn" data-tab="polls">◈ Polls</button>
         <button class="tab-btn" data-tab="timestamp">◈ Timestamp</button>
         <button class="tab-btn" data-tab="autofeeds">◈ Auto Feeds</button>
         <button class="tab-btn" data-tab="tickets">◈ Tickets</button>
@@ -41,6 +42,8 @@
         <button class="tab-btn" data-tab="stats">◈ Stats</button>
         <button class="tab-btn" data-tab="namehistory">◈ Name History</button>
         <button class="tab-btn" data-tab="commands">◈ Commands</button>
+        <button class="tab-btn" data-tab="tutorial">◈ Tutorial (PT-BR)</button>
+        <button class="tab-btn" data-tab="audit">◈ Audit & Analysis</button>
       </nav>
       <div class="sidebar-footer">
         <span class="dot"></span>SYSTEM ONLINE
@@ -252,7 +255,13 @@
       <!-- TICKETS -->
       <section class="panel" id="panel-tickets">
         <div class="card">
-          <div class="card-title">TICKETS</div>
+          <div class="card-title">TICKETS · SUGGESTIONS · REPORTS</div>
+          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:0.8rem">
+            Public panel channel: <code>📚┃tickets-suggestions</code> · Private log:
+            <code>📚┃ticket-logging</code>. Members use buttons + modal; content never stays on the public panel channel.
+          </p>
+          <button class="btn btn-primary" onclick="loadTicketLog()">↻ Load submissions</button>
+          <div id="ticket-log-list" style="margin-top:1rem;font-size:0.85rem;max-height:480px;overflow:auto"></div>
           <p style="font-size:0.85rem;color:var(--dim)">
             Configure category, staff role and log channel with
             <code>/ticket_config</code>, then post the panel with <code>/ticket_panel</code>.
@@ -262,6 +271,43 @@
           <p style="font-size:0.85rem;color:var(--dim);margin-top:0.8rem">
             Commands: <code>/ticket_panel</code> <code>/ticket_config</code> <code>/ticket_close</code>
             <code>/ticket_add</code> <code>/ticket_remove</code> <code>/ticket_rename</code> <code>/ticket_transcript</code>
+          </p>
+        </div>
+      </section>
+
+      
+      <!-- POLLS (Sesh-style) -->
+      <section class="panel" id="panel-polls">
+        <div class="card">
+          <div class="card-title">CREATE POLL</div>
+          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">
+            Live-updating poll with buttons (inspired by sesh.fyi). Results update on the message itself.
+          </p>
+          <label>Channel</label>
+          <select id="poll-channel"></select>
+          <label>Title / Question</label>
+          <input type="text" id="poll-title" placeholder="What should we do next meet?" maxlength="256" />
+          <label>Description (optional)</label>
+          <input type="text" id="poll-desc" placeholder="Optional context" />
+          <label>Options (one per line, min 2, max 10)</label>
+          <textarea id="poll-options" rows="5" placeholder="Option A&#10;Option B&#10;Option C"></textarea>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:0.8rem 0">
+            <label style="display:flex;align-items:center;gap:0.4rem">
+              <input type="checkbox" id="poll-single" /> Single vote per user
+            </label>
+            <label>Auto-close (hours, 0 = none)
+              <input type="number" id="poll-hours" min="0" step="0.5" value="0" style="width:5rem;margin-left:0.4rem" />
+            </label>
+          </div>
+          <label>Embed color</label>
+          <input type="color" id="poll-color" value="#B450FF" />
+          <button class="btn btn-primary" style="margin-top:1rem" onclick="postPoll()">CREATE POLL</button>
+          <div id="poll-status" style="margin-top:0.8rem;font-size:0.85rem;color:var(--dim)"></div>
+        </div>
+        <div class="card" style="margin-top:1rem">
+          <div class="card-title">SLASH COMMANDS</div>
+          <p style="font-size:0.85rem;color:var(--dim)">
+            <code>/poll</code> · <code>/poll_end</code> · <code>/poll_list</code>
           </p>
         </div>
       </section>
@@ -348,6 +394,167 @@
           </div>
         </div>
       </section>
+    
+      <!-- TUTORIAL PT-BR -->
+      <section class="panel" id="panel-tutorial">
+        <div class="card">
+          <div class="card-title">TUTORIAL — COMANDOS DO BOT (PORTUGUÊS)</div>
+          <p style="font-size:0.9rem;color:var(--dim);margin-bottom:1.2rem">
+            Lista completa dos <strong>slash commands</strong> disponíveis.
+            Digite <code>/</code> no Discord e escolha o comando. A maioria das ações de staff exige permissão de gerenciar mensagens ou administrador.
+          </p>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1rem">UTILIDADES</div>
+          <div style="font-size:0.85rem;line-height:1.7;color:var(--text)">
+            <code>/ping</code> — Mostra a latência do bot.<br/>
+            <code>/info</code> — Informações do bot, servidor e usuário.<br/>
+            <code>/help</code> — Painel cyberpunk interativo de ajuda no Discord.<br/>
+            <code>/timestamp</code> — Gera timestamp do Discord a partir de data/hora.<br/>
+            <code>/avatar</code> — Mostra o avatar de um usuário.<br/>
+            <code>/servericon</code> — Mostra o ícone do servidor.<br/>
+            <code>/membercount</code> — Contagem de membros (humanos e bots).<br/>
+            <code>/userinfo</code> — Detalhes de um membro (ID, entrada, cargos…).<br/>
+            <code>/serverinfo</code> — Informações gerais do servidor.<br/>
+            <code>/say</code> — <em>Staff</em> — Faz o bot enviar uma mensagem em um canal.
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">PAINEL WEB</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/panel</code> — <em>Staff</em> — Envia o link do painel web + chave de acesso (só quem tem o cargo).
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">ENQUETES (POLLS)</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/poll</code> — <em>Staff</em> — Cria enquete com botões e resultado ao vivo.<br/>
+            <code>/poll_end</code> — <em>Staff</em> — Encerra uma enquete pelo ID.<br/>
+            <code>/poll_list</code> — <em>Staff</em> — Lista enquetes ativas.
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">MEETS &amp; ANÚNCIOS</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/meet</code> — <em>Staff</em> — Publica anúncio de meet (data, local, hosts…) com lembretes.
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">AUTO-ROLE</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/autorole_panel</code> — Publica o painel de cargos no canal.<br/>
+            <code>/autorole_add</code> — Adiciona um cargo ao painel.<br/>
+            <code>/autorole_remove</code> — Remove um cargo do painel.<br/>
+            <code>/autorole_list</code> — Lista cargos configurados.<br/>
+            <code>/autorole_config</code> — Define título/descrição do embed.
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">AUTO-FEEDS (mensagens agendadas)</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/autofeed_add</code> — Agenda mensagem (intervalo ou horário fixo).<br/>
+            <code>/autofeed_list</code> — Lista feeds.<br/>
+            <code>/autofeed_remove</code> — Remove um feed pelo ID.<br/>
+            <code>/autofeed_toggle</code> — Liga/desliga um feed.
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">TICKETS</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/ticket_panel</code> — Publica o painel para abrir ticket.<br/>
+            <code>/ticket_config</code> — Configura categoria, cargo staff, canal de log.<br/>
+            <code>/ticket_close</code> — Fecha o ticket atual (com transcript).<br/>
+            <code>/ticket_add</code> — Adiciona membro ao ticket.<br/>
+            <code>/ticket_remove</code> — Remove membro do ticket.<br/>
+            <code>/ticket_rename</code> — Renomeia o canal do ticket.<br/>
+            <code>/ticket_transcript</code> — Gera transcript manual.
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">COMANDOS PERSONALIZADOS</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/cmd_add</code> — <em>Staff</em> — Cria um comando/tag de texto ou embed.<br/>
+            <code>/cmd_remove</code> — Remove um comando personalizado.<br/>
+            <code>/cmd_list</code> — Lista comandos personalizados.<br/>
+            <code>/run</code> — Executa um comando personalizado pelo nome.
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">STICKY (mensagem fixa no final do canal)</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/sticky_set</code> — Define a mensagem que fica no fim do canal.<br/>
+            <code>/sticky_clear</code> — Remove o sticky do canal.
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">ESTATÍSTICAS &amp; MÍDIA</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/stats</code> — Estatísticas de atividade do servidor.<br/>
+            <code>/topmedia</code> — Ranking de mídia (scores / top da semana).
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">HISTÓRICO DE NOMES</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/namehistory</code> — Consulta histórico de nicks/usernames de um membro.<br/>
+            <code>/namehistory_export</code> — Exporta o arquivo de histórico (staff).
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">CONVITES &amp; BOOST</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/invitepanel</code> — Painel para solicitar convite (com cooldown).<br/>
+            <code>/boost_config</code> — Configura mensagem de agradecimento de boost.
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">LOGS</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/weblogs_config</code> — Liga/desliga tipos de log (join, leave, edit, canais…).
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">MODERAÇÃO (limitada de propósito)</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/delete</code> — Apaga uma mensagem pelo ID (anônimo para o chat).<br/>
+            <code>/purge</code> — Apaga várias mensagens recentes (1–100).<br/>
+            <em>Kick/ban não existem neste bot por decisão do projeto.</em>
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">ANIVERSÁRIOS (painel fácil)</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/birthday_panel</code> — Publica o painel com botões (lista / registrar / editar / signo).<br/>
+            <code>/birthday_announce_channel</code> — Canal dos avisos diários de aniversário.<br/>
+            Membros usam só botões e menus — sem digitar data em slash.
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">BOAS-VINDAS &amp; VOZ</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/welcome_config</code> — DM de entrada, log de voz, bot entrar em call (opcional).<br/>
+            <code>/welcome_test</code> — Testa a DM de boas-vindas em você.
+          </div>
+
+          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">BACKUP &amp; BANCO (SQLite)</div>
+          <div style="font-size:0.85rem;line-height:1.7">
+            <code>/backup_now</code> — <em>Admin</em> — Força backup do banco no canal de backup.<br/>
+            <code>/backup_export</code> — <em>Admin</em> — Exporta DB/JSON para você (efêmero).<br/>
+            <code>/db_status</code> — <em>Admin</em> — Path, tamanho, última auto-backup.<br/>
+            <code>/backup_hint</code> — Explica como o auto-backup funciona no Render free.
+          </div>
+
+          <p style="font-size:0.8rem;color:var(--dim);margin-top:1.5rem">
+            Dica: no Discord, ative o Modo Desenvolvedor (Configurações → Avançado) para copiar IDs de canais, mensagens e usuários.
+          </p>
+        </div>
+      </section>
+
+    
+      <!-- AUDIT + SERVER ANALYSIS -->
+      <section class="panel" id="panel-audit">
+        <div class="card">
+          <div class="card-title">SERVER ANALYSIS</div>
+          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:0.8rem">
+            Live snapshot from the bot API (staff key required).
+          </p>
+          <button class="btn btn-primary" onclick="loadServerSummary()">↻ Refresh analysis</button>
+          <div id="server-summary" style="margin-top:1rem;font-size:0.85rem;line-height:1.6;color:var(--text)"></div>
+        </div>
+        <div class="card" style="margin-top:1rem">
+          <div class="card-title">API AUDIT LOG</div>
+          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:0.8rem">
+            Who did what on the panel / API (last 50 entries).
+          </p>
+          <button class="btn btn-primary" onclick="loadAuditLog()">↻ Refresh audit</button>
+          <div id="audit-log" style="margin-top:1rem;font-size:0.8rem;font-family:ui-monospace,monospace;max-height:420px;overflow:auto;color:var(--dim)"></div>
+        </div>
+      </section>
+
     </main>
   </div>
 

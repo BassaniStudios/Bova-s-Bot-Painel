@@ -20,5 +20,5 @@ window.BOVA_CONFIG = {
 
 /** Render public URL of the bot API (no trailing slash). Set after deploy. */
 window.BOVA_API = {
-  baseUrl: "https://bovarybot.onrender.com",
+  baseUrl: "https://YOUR-RENDER-SERVICE.onrender.com",
 };

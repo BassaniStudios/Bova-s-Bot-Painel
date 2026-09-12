@@ -1,5 +1,5 @@
 /** Access key — change via PANEL_ACCESS_KEY in bot .env and update here for the static panel */
-const ACCESS_KEY = "BOVA-CORE-2026";
+const ACCESS_KEY = "BovaClub#CoreAccess-2026!";
 
 function getApiBase() {
   return (window.BOVA_API && window.BOVA_API.baseUrl) || "";
@@ -390,7 +390,44 @@ function copyAfCommand() {
 }
 
 /* ---------- Init ---------- */
+
+async function postPoll() {
+  const status = document.getElementById("poll-status");
+  const channel = document.getElementById("poll-channel").value;
+  const title = document.getElementById("poll-title").value.trim();
+  const desc = document.getElementById("poll-desc").value.trim();
+  const raw = document.getElementById("poll-options").value;
+  const options = raw.split(/\n/).map(s => s.trim()).filter(Boolean);
+  const single = document.getElementById("poll-single").checked;
+  const hours = parseFloat(document.getElementById("poll-hours").value) || 0;
+  const color = document.getElementById("poll-color").value;
+  if (!channel || !title || options.length < 2) {
+    status.textContent = "Need channel, title and at least 2 options.";
+    return;
+  }
+  status.textContent = "Creating…";
+  try {
+    const res = await apiPost("/api/poll", {
+      channel_id: channel,
+      title,
+      description: desc,
+      options,
+      single_vote: single,
+      hours: hours > 0 ? hours : null,
+      color,
+    });
+    status.textContent = res.ok ? ("✅ Poll created · id " + res.id) : ("❌ " + (res.error || "fail"));
+  } catch (e) {
+    status.textContent = "❌ " + e.message;
+  }
+}
+
 function initAll() {
+  const pollCh = document.getElementById("poll-channel");
+  if (pollCh && window.BOVA_CONFIG && window.BOVA_CONFIG.channels) {
+    fillSelect(pollCh, window.BOVA_CONFIG.channels, true);
+  }
+
   const cfg = C();
   fillSelect(document.getElementById("ar-role-select"), cfg.roles);
   fillSelect(document.getElementById("ar-emoji-select"), cfg.emojis);
@@ -503,4 +540,75 @@ async function postAfToDiscord() {
     const data = await apiPost("/api/autofeed", body);
     alert("AutoFeed created #" + data.id);
   } catch (e) {}
+}
+
+
+async function loadServerSummary() {
+  const el = document.getElementById("server-summary");
+  if (!el) return;
+  el.textContent = "Loading…";
+  try {
+    const data = await apiGet("/api/server/summary");
+    if (data.error) { el.textContent = "Error: " + data.error; return; }
+    let roles = (data.roles || []).slice(0, 12).map(r =>
+      `• ${r.name} — ${r.members} members`
+    ).join("<br/>");
+    el.innerHTML = `
+      <strong style="color:var(--text)">${esc(data.name)}</strong> · <code>${esc(data.id)}</code><br/>
+      Members: <strong>${data.member_count}</strong> (👤 ${data.humans} · 🤖 ${data.bots})<br/>
+      Channels: 💬 ${data.text_channels} · 🔊 ${data.voice_channels}<br/>
+      Roles: ${data.roles_count} · Boosts: L${data.boost_tier} / ${data.boosts}<br/>
+      Created: <code>${esc(data.created_at || "")}</code><br/><br/>
+      <strong>Top roles</strong><br/>${roles || "—"}
+    `;
+  } catch (e) {
+    el.textContent = "Failed: " + e.message;
+  }
+}
+
+async function loadAuditLog() {
+  const el = document.getElementById("audit-log");
+  if (!el) return;
+  el.textContent = "Loading…";
+  try {
+    const data = await apiGet("/api/audit");
+    const entries = data.entries || [];
+    if (!entries.length) { el.textContent = "No audit entries yet."; return; }
+    el.innerHTML = entries.map(e => {
+      const ok = e.success ? "OK" : "FAIL";
+      return `<div style="margin-bottom:0.5rem;border-bottom:1px solid #2a2a45;padding-bottom:0.35rem">
+        <span style="color:var(--text)">${esc(e.ts || "")}</span>
+        · actor <code>${esc(String(e.actor_id || "—"))}</code>
+        · <strong>${esc(e.action || "")}</strong>
+        · ${ok}
+        ${e.detail ? `<br/><span style="opacity:0.75">${esc(JSON.stringify(e.detail).slice(0, 180))}</span>` : ""}
+      </div>`;
+    }).join("");
+  } catch (e) {
+    el.textContent = "Failed: " + e.message;
+  }
+}
+
+
+async function loadTicketLog() {
+  const el = document.getElementById("ticket-log-list");
+  if (!el) return;
+  el.textContent = "Loading…";
+  try {
+    const data = await apiGet("/api/tickets");
+    const entries = data.entries || [];
+    if (!entries.length) { el.textContent = "No submissions yet."; return; }
+    el.innerHTML = entries.map(e => {
+      const kind = esc(e.kind || "");
+      const subj = esc(e.subject || "");
+      const body = esc((e.body || "").slice(0, 280));
+      return `<div style="margin-bottom:0.75rem;padding-bottom:0.6rem;border-bottom:1px solid #2a2a45">
+        <strong style="color:var(--text)">[${kind}]</strong> ${subj}<br/>
+        <span style="opacity:0.8">by <code>${esc(String(e.user_id||""))}</code> · ${esc(e.created_at||"")} · id ${esc(String(e.id||""))}</span><br/>
+        <span style="color:var(--dim)">${body}</span>
+      </div>`;
+    }).join("");
+  } catch (err) {
+    el.textContent = "Failed: " + err.message;
+  }
 }
