@@ -18,7 +18,7 @@ window.BOVA_CONFIG = {
   emojis: ["❤️", "🔥", "💯", "💥", "🎀", "🚗", "⭐", "🐺", "🦉", "✅", "🎫", "💜"],
 };
 
-/** Render public URL of the bot API (no trailing slash). Set after deploy. */
+/** Render public URL of the bot API (no trailing slash). */
 window.BOVA_API = {
-  baseUrl: "https://YOUR-RENDER-SERVICE.onrender.com",
+  baseUrl: "https://bovarybot.onrender.com",
 };
