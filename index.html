@@ -1,560 +1,163 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bova's Bot — Control Panel</title>
-  <meta name="robots" content="noindex, nofollow" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bova's Bot · Control Center</title>
+  <meta name="robots" content="noindex,nofollow" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div id="gate">
-    <div class="gate-box">
-      <img src="https://ik.imagekit.io/BassaniStudios/bovary%20pic%20meet/setembro/bova%20logo%20?updatedAt=1788801048503" alt="logo" width="64" height="64" style="border-radius:50%;box-shadow:0 0 20px rgba(192,96,255,0.5)" />
-      <h1>BOVA'S BOT</h1>
-      <p style="color:var(--dim);font-size:0.85rem;margin-bottom:1.2rem">Restricted access · Key from <code>/panel</code></p>
-      <input type="password" id="gate-input" placeholder="ACCESS KEY" autocomplete="off" />
-      <button class="btn btn-primary" style="width:100%" onclick="tryUnlock()">AUTHENTICATE</button>
-      <div class="gate-error" id="gate-error">Invalid key.</div>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+
+  <div id="gate" class="gate">
+    <div class="gate-card">
+      <div class="gate-logo-wrap"><img class="gate-logo" src="https://ik.imagekit.io/BassaniStudios/bovary%20pic%20meet/setembro/bova%20logo%20?updatedAt=1788801048503" alt="Bova's Bot"></div>
+      <div class="eyebrow">BOVARY CLUB SOCIETY · PRIVATE</div>
+      <h1>BOVA<span>CORE</span></h1>
+      <p class="gate-copy">Secure staff control center for your Discord bot.</p>
+      <label for="gate-user-id">Discord User ID</label>
+      <input id="gate-user-id" inputmode="numeric" placeholder="Your Discord user ID" autocomplete="off" />
+      <label for="gate-input">Access key</label>
+      <input type="password" id="gate-input" placeholder="Enter access key" autocomplete="current-password" />
+      <button class="btn btn-primary btn-block" onclick="tryUnlock()">Authenticate <span>→</span></button>
+      <div class="gate-error" id="gate-error"></div>
+      <div class="gate-note">Your access key is kept only in this browser session.</div>
     </div>
   </div>
 
   <div class="app" id="app" style="display:none">
-    <aside class="sidebar">
-      <div class="sidebar-brand">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
         <img src="https://ik.imagekit.io/BassaniStudios/bovary%20pic%20meet/setembro/bova%20logo%20?updatedAt=1788801048503" alt="Bova's Bot" />
-        <div>
-          <div class="title">Bova's Bot</div>
-          <div class="sub">BOVA CORE</div>
+        <div><strong>BOVA<span>CORE</span></strong><small>CONTROL CENTER</small></div>
+      </div>
+      <div class="sidebar-scroll">
+        <div class="nav-group"><div class="nav-label">Overview</div>
+          <button class="tab-btn active" data-tab="dashboard"><i>⌂</i> Dashboard</button>
+          <button class="tab-btn" data-tab="server"><i>◉</i> Server</button>
+          <button class="tab-btn" data-tab="commands"><i>⌘</i> Command Center</button>
+        </div>
+        <div class="nav-group"><div class="nav-label">Automation</div>
+          <button class="tab-btn" data-tab="timestamp"><i>◷</i> Timestamp Reminders <span class="nav-dot"></span></button>
+          <button class="tab-btn" data-tab="autofeeds"><i>↻</i> Auto Feeds</button>
+          <button class="tab-btn" data-tab="meets"><i>◇</i> Meets</button>
+          <button class="tab-btn" data-tab="boost"><i>✦</i> Boost</button>
+        </div>
+        <div class="nav-group"><div class="nav-label">Community</div>
+          <button class="tab-btn" data-tab="autorole"><i>◎</i> Auto-Role</button>
+          <button class="tab-btn" data-tab="tickets"><i>▣</i> Tickets</button>
+          <button class="tab-btn" data-tab="polls"><i>◇</i> Polls</button>
+          <button class="tab-btn" data-tab="dm"><i>✉</i> DM Inbox <span class="nav-dot"></span></button>
+          <button class="tab-btn" data-tab="namehistory"><i>↳</i> Name History</button>
+        </div>
+        <div class="nav-group"><div class="nav-label">Tools</div>
+          <button class="tab-btn" data-tab="embed"><i>▤</i> Embed Builder</button>
+          <button class="tab-btn" data-tab="stats"><i>▥</i> Stats</button>
+          <button class="tab-btn" data-tab="weblogs"><i>≡</i> WebLogs</button>
+          <button class="tab-btn" data-tab="audit"><i>⌁</i> Audit</button>
+          <button class="tab-btn" data-tab="tutorial"><i>?</i> Help & Guide</button>
         </div>
       </div>
-      <nav class="sidebar-nav" id="tabs">
-        <button class="tab-btn active" data-tab="dashboard">◈ Dashboard</button>
-        <button class="tab-btn" data-tab="autorole">◈ Auto-Role</button>
-        <button class="tab-btn" data-tab="embed">◈ Embed</button>
-        <button class="tab-btn" data-tab="meets">◈ Meets</button>
-        <button class="tab-btn" data-tab="polls">◈ Polls</button>
-        <button class="tab-btn" data-tab="timestamp">◈ Timestamp</button>
-        <button class="tab-btn" data-tab="autofeeds">◈ Auto Feeds</button>
-        <button class="tab-btn" data-tab="tickets">◈ Tickets</button>
-        <button class="tab-btn" data-tab="boost">◈ Boost</button>
-        <button class="tab-btn" data-tab="weblogs">◈ WebLogs</button>
-        <button class="tab-btn" data-tab="stats">◈ Stats</button>
-        <button class="tab-btn" data-tab="namehistory">◈ Name History</button>
-        <button class="tab-btn" data-tab="commands">◈ Commands</button>
-        <button class="tab-btn" data-tab="tutorial">◈ Tutorial (PT-BR)</button>
-        <button class="tab-btn" data-tab="audit">◈ Audit & Analysis</button>
-      </nav>
-      <div class="sidebar-footer">
-        <span class="dot"></span>SYSTEM ONLINE
-      </div>
+      <div class="sidebar-footer"><span class="online-dot"></span><span>BOT SYSTEM</span><strong id="side-status">ONLINE</strong></div>
     </aside>
 
     <main class="main">
-            <section class="panel active" id="panel-dashboard">
-        <div class="card">
-          <div class="card-title">BOVA CORE · DASHBOARD</div>
-          <div class="grid-3">
-            <div class="stat-box"><div class="stat-value">ONLINE</div><div class="stat-label">Bot status</div></div>
-            <div class="stat-box"><div class="stat-value">PRIVATE</div><div class="stat-label">Bovary Club Society</div></div>
-            <div class="stat-box"><div class="stat-value">v2.1</div><div class="stat-label">Control panel</div></div>
-          </div>
-          <p style="margin-top:1rem;font-size:0.85rem;color:var(--dim)">
-            Official private bot of <strong style="color:var(--text)">Bovary Club Society</strong>.
-            Built by <strong style="color:var(--purple)">Bassani</strong> · modular cogs · slash-first.
-          </p>
-        </div>
-        <div class="card">
-          <div class="card-title">QUICK ACTIONS</div>
-          <p style="font-size:0.85rem;color:var(--dim);line-height:1.7">
-            Use Discord slash commands for live actions. This panel prepares payloads and previews.<br/>
-            <code>/help</code> — in-Discord control panel<br/>
-            <code>/panel</code> — staff link + access key<br/>
-            <code>/stats</code> — numbers + chart images<br/>
-            <code>/namehistory</code> — member rename history
-          </p>
-        </div>
-        <div class="card">
-          <div class="card-title">LOG ROUTING</div>
-          <p style="font-size:0.85rem;color:var(--dim);line-height:1.7">
-            Joins / leaves → <code>Info</code><br/>
-            Name changes + member registry → <code>bot-room</code><br/>
-            Message delete / edit (with media links) → message log<br/>
-            Boost thank-you → boost channel<br/>
-            Staff moderation actions → bot-room + message log
-          </p>
-        </div>
-        <div class="card">
-          <div class="card-title">POSTING FROM THIS PANEL</div>
-          <p style="font-size:0.85rem;color:var(--dim)">
-            Static GitHub Pages cannot post as the bot. Auto-Role, Embed, Meets and AutoFeeds
-            generate commands / JSON for you to run in Discord. API on Render is available: set <code>BOVA_API.baseUrl</code> in <code>js/config.js</code>. Calls require your Discord user ID + staff role.
-          </p>
-        </div>
-      </section>
+      <header class="topbar">
+        <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+        <div><div class="crumb" id="crumb">OVERVIEW / DASHBOARD</div><h2 id="page-title">Dashboard</h2></div>
+        <div class="top-actions"><span class="live-pill"><span></span> Live</span><button class="icon-btn" title="Refresh" onclick="refreshCurrent()">↻</button></div>
+      </header>
 
-
-      <!-- AUTO-ROLE -->
-      <section class="panel" id="panel-autorole">
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-title">AUTO-ROLE CONFIG</div>
-            <label>Embed title</label>
-            <input id="ar-title" value="Choose your roles" oninput="updateArPreview()" />
-            <label>Embed description</label>
-            <textarea id="ar-desc" oninput="updateArPreview()">Select a role below to unlock channels.</textarea>
-            <label>Color</label>
-            <input type="color" id="ar-color" value="#B450FF" oninput="updateArPreview()" />
-            <hr />
-            <label>Role (select) — add as many as you need</label>
-            <select id="ar-role-select"></select>
-            <label>Button label</label>
-            <input id="ar-role-label" placeholder="Auto-fills from role name" />
-            <label>Emoji (select)</label>
-            <select id="ar-emoji-select"></select>
-            <button class="btn btn-primary" onclick="addArRole()">ADD ROLE BUTTON</button>
-            <div id="ar-role-list" style="margin-top:0.8rem"></div>
-            <p style="font-size:0.75rem;color:var(--dim);margin-top:0.8rem" id="ar-cmd-hint"></p>
-            <button class="btn btn-ghost" onclick="exportArConfig()">EXPORT JSON</button>
-            <button class="btn btn-primary" onclick="postArPanel()">POST PANEL TO DISCORD</button>
-          </div>
-          <div class="card">
-            <div class="card-title">LIVE PREVIEW</div>
-            <div class="embed-preview" id="ar-preview"></div>
-          </div>
+      <!-- DASHBOARD -->
+      <section class="panel active" id="panel-dashboard">
+        <div class="hero card-glow">
+          <div><div class="eyebrow">BOVA CORE · PRIVATE SERVER</div><h3>Everything in one place.</h3><p>Monitor your bot, configure automation, manage community tools and access every Discord command from one modern workspace.</p></div>
+          <div class="hero-orb">B</div>
         </div>
-      </section>
-
-      <!-- EMBED -->
-      <section class="panel" id="panel-embed">
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-title">EMBED BUILDER</div>
-            <label>Title</label>
-            <input id="em-title" oninput="updateEmPreview()" />
-            <label>Description</label>
-            <textarea id="em-desc" oninput="updateEmPreview()"></textarea>
-            <label>Color</label>
-            <input type="color" id="em-color" value="#00E5FF" oninput="updateEmPreview()" />
-            <label>Image URL</label>
-            <input id="em-image" oninput="updateEmPreview()" placeholder="https://" />
-            <label>Footer</label>
-            <input id="em-footer" value="Bova's Bot · Bovary Club Society" oninput="updateEmPreview()" />
-            <label>Post to channel</label>
-            <select id="em-channel"></select>
-            <label>Mention role (optional)</label>
-            <select id="em-role"><option value="">— none —</option></select>
-            <p style="font-size:0.75rem;color:var(--dim)" id="em-cmd-hint">
-              Static sites cannot post as the bot. Copy webhook JSON or use a staff webhook.
-            </p>
-            <button class="btn btn-primary" onclick="postEmToDiscord()">POST TO DISCORD</button>
-            <button class="btn btn-ghost" onclick="copyEmWebhookPayload()">COPY WEBHOOK JSON</button>
-            <button class="btn btn-ghost" onclick="copyEmJson()">COPY RAW JSON</button>
-          </div>
-          <div class="card">
-            <div class="card-title">LIVE PREVIEW</div>
-            <div class="embed-preview" id="em-preview"></div>
-          </div>
+        <div class="stat-grid" id="overview-stats">
+          <div class="metric"><span class="metric-icon">◉</span><div><strong id="m-status">—</strong><small>Bot status</small></div></div>
+          <div class="metric"><span class="metric-icon">⌘</span><div><strong id="m-commands">—</strong><small>Slash commands</small></div></div>
+          <div class="metric"><span class="metric-icon">◷</span><div><strong id="m-pending">—</strong><small>Pending reminders</small></div></div>
+          <div class="metric"><span class="metric-icon">✉</span><div><strong id="m-dms">—</strong><small>DM conversations</small></div></div>
         </div>
-      </section>
-
-      <!-- MEETS -->
-      <section class="panel" id="panel-meets">
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-title">MEET ANNOUNCER</div>
-            <label>Title</label>
-            <input id="mt-title" oninput="updateMtPreview()" placeholder="Night Cruise" />
-            <label>Description</label>
-            <textarea id="mt-desc" oninput="updateMtPreview()"></textarea>
-            <label>Date</label>
-            <input type="date" id="mt-date" oninput="updateMtPreview()" />
-            <label>Time</label>
-            <input type="time" id="mt-time" oninput="updateMtPreview()" />
-            <label>Timezone</label>
-            <select id="mt-tz" onchange="updateMtPreview()"></select>
-            <label>Hosts (multi-select)</label>
-            <div class="chip-select" id="mt-hosts"></div>
-            <label>Server</label>
-            <select id="mt-server" onchange="updateMtPreview()"></select>
-            <label>Mention role</label>
-            <select id="mt-role" onchange="updateMtPreview()"><option value="">— none —</option></select>
-            <label>Image URL</label>
-            <input id="mt-image" oninput="updateMtPreview()" />
-            <label><input type="checkbox" id="mt-reminder" style="width:auto" /> Enable ~30-min reminder</label>
-            <label>Reminder channel</label>
-            <select id="mt-rem-ch"></select>
-            <p style="font-size:0.8rem;color:var(--cyan);margin-top:0.5rem" id="mt-cmd-hint"></p>
-            <button class="btn btn-primary" onclick="postMtToDiscord()">POST MEET TO DISCORD</button>
-            <button class="btn btn-ghost" onclick="copyMtCommand()">COPY /meet COMMAND</button>
-          </div>
-          <div class="card">
-            <div class="card-title">LIVE PREVIEW</div>
-            <div class="embed-preview" id="mt-preview"></div>
-          </div>
+        <div class="dashboard-grid">
+          <div class="card"><div class="section-head"><div><div class="card-title">SYSTEM OVERVIEW</div><h4>Live bot health</h4></div><span class="status-badge good" id="health-badge">Checking…</span></div><div class="health-list" id="health-list"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div></div>
+          <div class="card"><div class="section-head"><div><div class="card-title">QUICK ACCESS</div><h4>Most-used controls</h4></div></div><div class="quick-grid"><button onclick="switchTab('timestamp')"><span>◷</span> Timestamp</button><button onclick="switchTab('meets')"><span>◇</span> Create Meet</button><button onclick="switchTab('embed')"><span>▤</span> Embed</button><button onclick="switchTab('dm')"><span>✉</span> DM Inbox</button><button onclick="switchTab('commands')"><span>⌘</span> Commands</button><button onclick="switchTab('audit')"><span>⌁</span> Audit</button></div></div>
+        </div>
+        <div class="dashboard-grid">
+          <div class="card"><div class="card-title">TIMESTAMP REMINDER</div><div class="feature-line"><span class="feature-icon">◷</span><div><strong id="dash-ts-state">—</strong><small id="dash-ts-detail">Loading configuration…</small></div><button class="mini-btn" onclick="switchTab('timestamp')">Manage</button></div></div>
+          <div class="card"><div class="card-title">DATABASE & BACKUP</div><div class="feature-line"><span class="feature-icon">◫</span><div><strong id="dash-db">—</strong><small id="dash-backup">Loading backup state…</small></div><button class="mini-btn" onclick="switchTab('audit')">Inspect</button></div></div>
         </div>
       </section>
 
       <!-- TIMESTAMP -->
       <section class="panel" id="panel-timestamp">
-        <div class="card" style="max-width:560px">
-          <div class="card-title">DISCORD TIMESTAMP CONVERTER</div>
-          <label>Date</label>
-          <input type="date" id="ts-date" oninput="updateTs()" />
-          <label>Time</label>
-          <input type="time" id="ts-time" oninput="updateTs()" />
-          <label>Timezone</label>
-          <select id="ts-tz" onchange="onTsTz()"></select>
-          <label>UTC offset (hours)</label>
-          <input type="number" id="ts-offset" value="-3" step="0.5" oninput="updateTs()" />
-          <div class="preview-discord-ts" id="ts-live-preview">Select date & time</div>
-          <div class="ts-formats" id="ts-out"></div>
+        <div class="page-intro"><div><div class="eyebrow">AUTOMATION</div><h3>Timestamp Reminders</h3><p>Automatically detect <code>&lt;t:UNIX:R&gt;</code> in announcements and send an English reminder in the same channel before the event starts.</p></div><span class="status-badge" id="ts-status-badge">Loading</span></div>
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-title">REMINDER ENGINE</div>
+            <div class="toggle-row"><div><strong>Automatic reminders</strong><small>Monitor new messages and embeds</small></div><label class="switch"><input type="checkbox" id="ts-enabled"><span></span></label></div>
+            <label>Reminder lead time <span class="hint">1–1440 minutes</span></label><div class="input-suffix"><input type="number" id="ts-minutes" min="1" max="1440" value="30"><span>minutes before</span></div>
+            <label>English reminder template <span class="hint">supports placeholders</span></label>
+            <textarea id="ts-text" rows="6" placeholder="⏰ **Reminder:** this announcement starts in approximately **{minutes} minutes** — <t:{timestamp}:R>.&#10;[Open announcement]({jump_url})"></textarea>
+            <div class="placeholder-box"><span>{minutes}</span><span>{timestamp}</span><span>{jump_url}</span></div>
+            <div class="action-row"><button class="btn btn-primary" onclick="saveTimestampConfig()">Save configuration</button><button class="btn btn-ghost" onclick="loadTimestampConfig()">Reset</button></div>
+            <div class="form-status" id="ts-save-status"></div>
+          </div>
+          <div class="card preview-card">
+            <div class="card-title">LIVE PREVIEW</div>
+            <div class="discord-preview"><div class="discord-avatar">B</div><div><div class="discord-name">Bova's Bot <span>BOT</span></div><div class="discord-msg" id="ts-preview">⏰ <strong>Reminder:</strong> this announcement starts in approximately <strong>30 minutes</strong> — <t:1789226111:R>.<br><a>Open announcement</a></div></div></div>
+            <div class="info-callout"><strong>How it works</strong><p>When a future relative timestamp is found, it is stored in SQLite. Around the configured lead time, the bot posts once and marks the reminder as sent. Edits to an announcement update its pending timestamp.</p></div>
+            <div class="mini-stats"><div><strong id="ts-pending">—</strong><small>pending</small></div><div><strong>English</strong><small>message language</small></div><div><strong>Same channel</strong><small>delivery</small></div></div>
+          </div>
         </div>
       </section>
 
-      <!-- AUTO FEEDS -->
-      <section class="panel" id="panel-autofeeds">
-        <div class="card">
-          <div class="card-title">AUTO FEEDS</div>
-          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">
-            Scheduled messages. Use Discord commands for live list.
-            Supports <strong>interval</strong> or <strong>fixed daily time</strong> + optional embed.
-          </p>
-          <label>Message</label>
-          <textarea id="af-msg" placeholder="Message or embed description"></textarea>
-          <label>Channel</label>
-          <select id="af-channel"></select>
-          <label>Role mention (optional)</label>
-          <select id="af-role"><option value="">— none —</option></select>
-          <label>Mode</label>
-          <select id="af-mode" onchange="toggleAfMode()">
-            <option value="interval">Interval (minutes)</option>
-            <option value="fixed">Fixed daily time (São Paulo)</option>
-          </select>
-          <div id="af-interval-box">
-            <label>Interval minutes</label>
-            <input type="number" id="af-interval" value="1440" min="1" max="10080" />
-          </div>
-          <div id="af-fixed-box" style="display:none">
-            <label>Timezone (for fixed daily time)</label>
-            <select id="af-tz"></select>
-            <label>Hour (0-23)</label>
-            <input type="number" id="af-hour" value="20" min="0" max="23" />
-            <label>Minute (0-59)</label>
-            <input type="number" id="af-minute" value="0" min="0" max="59" />
-          </div>
-          <label><input type="checkbox" id="af-embed" style="width:auto" /> Send as embed</label>
-          <label>Embed title (optional)</label>
-          <input id="af-embed-title" />
-          <p style="font-size:0.8rem;color:var(--cyan);margin-top:0.5rem" id="af-cmd-hint"></p>
-          <button class="btn btn-primary" onclick="postAfToDiscord()">CREATE AUTOFEED VIA API</button>
-            <button class="btn btn-ghost" onclick="copyAfCommand()">COPY /autofeed_add COMMAND</button>
-        </div>
-      </section>
+      <!-- AUTOROLE -->
+      <section class="panel" id="panel-autorole"><div class="page-intro"><div><div class="eyebrow">COMMUNITY</div><h3>Auto-Role</h3><p>Build a role-selection panel with a live Discord-style preview.</p></div></div><div class="dashboard-grid"><div class="card"><div class="card-title">PANEL CONFIG</div><label>Embed title</label><input id="ar-title" value="Choose your roles" oninput="updateArPreview()"><label>Embed description</label><textarea id="ar-desc" oninput="updateArPreview()">Select a role below to unlock channels.</textarea><label>Color</label><input type="color" id="ar-color" value="#B450FF" oninput="updateArPreview()"><hr><label>Role</label><select id="ar-role-select"></select><label>Button label</label><input id="ar-role-label" placeholder="Auto-fills from role name"><label>Emoji</label><select id="ar-emoji-select"></select><button class="btn btn-primary" onclick="addArRole()">Add role button</button><div id="ar-role-list" class="chip-list"></div><div class="form-status" id="ar-cmd-hint"></div><button class="btn btn-ghost" onclick="exportArConfig()">Export JSON</button><button class="btn btn-primary" onclick="postArPanel()">Post panel to Discord</button></div><div class="card"><div class="card-title">LIVE PREVIEW</div><div class="embed-preview" id="ar-preview"></div></div></div></section>
+
+      <!-- EMBED -->
+      <section class="panel" id="panel-embed"><div class="page-intro"><div><div class="eyebrow">TOOLS</div><h3>Embed Builder</h3><p>Create polished Discord embeds and post them through the bot API.</p></div></div><div class="dashboard-grid"><div class="card"><div class="card-title">EMBED CONTENT</div><label>Title</label><input id="em-title" oninput="updateEmPreview()"><label>Description</label><textarea id="em-desc" oninput="updateEmPreview()"></textarea><label>Color</label><input type="color" id="em-color" value="#00E5FF" oninput="updateEmPreview()"><label>Image URL</label><input id="em-image" oninput="updateEmPreview()" placeholder="https://"><label>Footer</label><input id="em-footer" value="Bova's Bot · Bovary Club Society" oninput="updateEmPreview()"><label>Channel</label><select id="em-channel"></select><label>Mention role</label><select id="em-role"><option value="">— none —</option></select><div class="action-row"><button class="btn btn-primary" onclick="postEmToDiscord()">Post to Discord</button><button class="btn btn-ghost" onclick="copyEmWebhookPayload()">Copy webhook JSON</button><button class="btn btn-ghost" onclick="copyEmJson()">Copy raw JSON</button></div></div><div class="card"><div class="card-title">LIVE PREVIEW</div><div class="embed-preview" id="em-preview"></div></div></div></section>
+
+      <!-- MEETS -->
+      <section class="panel" id="panel-meets"><div class="page-intro"><div><div class="eyebrow">ANNOUNCEMENTS</div><h3>Meet Announcer</h3><p>Create car meet announcements with Discord timestamps and optional reminder handling.</p></div></div><div class="dashboard-grid"><div class="card"><div class="card-title">MEET DETAILS</div><label>Title</label><input id="mt-title" oninput="updateMtPreview()" placeholder="Night Cruise"><label>Description</label><textarea id="mt-desc" oninput="updateMtPreview()"></textarea><div class="two-col"><div><label>Date</label><input type="date" id="mt-date" oninput="updateMtPreview()"></div><div><label>Time</label><input type="time" id="mt-time" oninput="updateMtPreview()"></div></div><label>Timezone</label><select id="mt-tz" onchange="updateMtPreview()"></select><label>Hosts</label><div class="chip-select" id="mt-hosts"></div><label>Server</label><select id="mt-server" onchange="updateMtPreview()"></select><label>Mention role</label><select id="mt-role" onchange="updateMtPreview()"><option value="">— none —</option></select><label>Image URL</label><input id="mt-image" oninput="updateMtPreview()"><div class="toggle-row compact"><div><strong>Legacy meet reminder</strong><small>Uses the Meet cog's reminder flow</small></div><label class="switch"><input type="checkbox" id="mt-reminder"><span></span></label></div><label>Reminder channel</label><select id="mt-rem-ch"></select><div class="action-row"><button class="btn btn-primary" onclick="postMtToDiscord()">Post meet</button><button class="btn btn-ghost" onclick="copyMtCommand()">Copy /meet</button></div><div class="form-status" id="mt-cmd-hint"></div></div><div class="card"><div class="card-title">LIVE PREVIEW</div><div class="embed-preview" id="mt-preview"></div></div></div></section>
+
+      <!-- AUTOFEEDS -->
+      <section class="panel" id="panel-autofeeds"><div class="page-intro"><div><div class="eyebrow">AUTOMATION</div><h3>Auto Feeds</h3><p>Schedule recurring messages using an interval or a fixed daily time.</p></div></div><div class="card narrow-card"><div class="card-title">NEW AUTO FEED</div><label>Message</label><textarea id="af-msg" placeholder="Message or embed description"></textarea><label>Channel</label><select id="af-channel"></select><label>Role mention</label><select id="af-role"><option value="">— none —</option></select><label>Mode</label><select id="af-mode" onchange="toggleAfMode()"><option value="interval">Interval</option><option value="fixed">Fixed daily time</option></select><div id="af-interval-box"><label>Interval minutes</label><input type="number" id="af-interval" value="1440" min="1" max="10080"></div><div id="af-fixed-box" style="display:none"><label>Timezone</label><select id="af-tz"></select><div class="two-col"><div><label>Hour</label><input type="number" id="af-hour" value="20" min="0" max="23"></div><div><label>Minute</label><input type="number" id="af-minute" value="0" min="0" max="59"></div></div></div><div class="toggle-row compact"><div><strong>Send as embed</strong></div><label class="switch"><input type="checkbox" id="af-embed"><span></span></label></div><label>Embed title</label><input id="af-embed-title"><div class="action-row"><button class="btn btn-primary" onclick="postAfToDiscord()">Create auto feed</button><button class="btn btn-ghost" onclick="copyAfCommand()">Copy command</button></div><div class="form-status" id="af-cmd-hint"></div></div></section>
 
       <!-- TICKETS -->
-      <section class="panel" id="panel-tickets">
-        <div class="card">
-          <div class="card-title">TICKETS · SUGGESTIONS · REPORTS</div>
-          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:0.8rem">
-            Public panel channel: <code>📚┃tickets-suggestions</code> · Private log:
-            <code>📚┃ticket-logging</code>. Members use buttons + modal; content never stays on the public panel channel.
-          </p>
-          <button class="btn btn-primary" onclick="loadTicketLog()">↻ Load submissions</button>
-          <div id="ticket-log-list" style="margin-top:1rem;font-size:0.85rem;max-height:480px;overflow:auto"></div>
-          <p style="font-size:0.85rem;color:var(--dim)">
-            Configure category, staff role and log channel with
-            <code>/ticket_config</code>, then post the panel with <code>/ticket_panel</code>.
-            Closing a ticket auto-generates a transcript saved under <code>data/transcripts/</code>
-            and logs to bot-room.
-          </p>
-          <p style="font-size:0.85rem;color:var(--dim);margin-top:0.8rem">
-            Commands: <code>/ticket_panel</code> <code>/ticket_config</code> <code>/ticket_close</code>
-            <code>/ticket_add</code> <code>/ticket_remove</code> <code>/ticket_rename</code> <code>/ticket_transcript</code>
-          </p>
-        </div>
-      </section>
+      <section class="panel" id="panel-tickets"><div class="page-intro"><div><div class="eyebrow">COMMUNITY</div><h3>Tickets & Submissions</h3><p>Review recent ticket, suggestion and report submissions captured by the bot.</p></div><button class="btn btn-ghost" onclick="loadTicketLog()">↻ Refresh</button></div><div class="card"><div class="section-head"><div><div class="card-title">RECENT SUBMISSIONS</div><h4>Staff queue</h4></div></div><div id="ticket-log-list" class="scroll-list"></div></div><div class="info-grid"><div class="info-callout"><strong>Discord commands</strong><p><code>/ticket_panel</code> · <code>/ticket_setup</code> · <code>/ticket_list</code></p></div><div class="info-callout"><strong>Current implementation</strong><p>Public panel + private staff logging. Transcripts are generated by the ticket workflow when applicable.</p></div></div></section>
 
-      
-      <!-- POLLS (Sesh-style) -->
-      <section class="panel" id="panel-polls">
-        <div class="card">
-          <div class="card-title">CREATE POLL</div>
-          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">
-            Live-updating poll with buttons (inspired by sesh.fyi). Results update on the message itself.
-          </p>
-          <label>Channel</label>
-          <select id="poll-channel"></select>
-          <label>Title / Question</label>
-          <input type="text" id="poll-title" placeholder="What should we do next meet?" maxlength="256" />
-          <label>Description (optional)</label>
-          <input type="text" id="poll-desc" placeholder="Optional context" />
-          <label>Options (one per line, min 2, max 10)</label>
-          <textarea id="poll-options" rows="5" placeholder="Option A&#10;Option B&#10;Option C"></textarea>
-          <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:0.8rem 0">
-            <label style="display:flex;align-items:center;gap:0.4rem">
-              <input type="checkbox" id="poll-single" /> Single vote per user
-            </label>
-            <label>Auto-close (hours, 0 = none)
-              <input type="number" id="poll-hours" min="0" step="0.5" value="0" style="width:5rem;margin-left:0.4rem" />
-            </label>
-          </div>
-          <label>Embed color</label>
-          <input type="color" id="poll-color" value="#B450FF" />
-          <button class="btn btn-primary" style="margin-top:1rem" onclick="postPoll()">CREATE POLL</button>
-          <div id="poll-status" style="margin-top:0.8rem;font-size:0.85rem;color:var(--dim)"></div>
-        </div>
-        <div class="card" style="margin-top:1rem">
-          <div class="card-title">SLASH COMMANDS</div>
-          <p style="font-size:0.85rem;color:var(--dim)">
-            <code>/poll</code> · <code>/poll_end</code> · <code>/poll_list</code>
-          </p>
-        </div>
-      </section>
+      <!-- POLLS -->
+      <section class="panel" id="panel-polls"><div class="page-intro"><div><div class="eyebrow">COMMUNITY</div><h3>Polls</h3><p>Live-updating button polls with optional automatic closing.</p></div></div><div class="card narrow-card"><div class="card-title">CREATE POLL</div><label>Channel</label><select id="poll-channel"></select><label>Question</label><input id="poll-title" maxlength="256" placeholder="What should we do next meet?"><label>Description</label><input id="poll-desc" placeholder="Optional context"><label>Options <span class="hint">2–10, one per line</span></label><textarea id="poll-options" rows="6" placeholder="Option A\nOption B\nOption C"></textarea><div class="two-col"><div class="toggle-row compact"><div><strong>Single vote</strong></div><label class="switch"><input type="checkbox" id="poll-single"><span></span></label></div><div><label>Auto-close hours</label><input type="number" id="poll-hours" min="0" step="0.5" value="0"></div></div><label>Embed color</label><input type="color" id="poll-color" value="#B450FF"><button class="btn btn-primary" onclick="postPoll()">Create poll</button><div class="form-status" id="poll-status"></div></div></section>
+
+      <!-- DM INBOX -->
+      <section class="panel" id="panel-dm"><div class="page-intro"><div><div class="eyebrow">PRIVATE SUPPORT</div><h3>DM Inbox</h3><p>Read stored conversations and reply through the bot account. Messages are persisted in SQLite.</p></div><button class="btn btn-ghost" onclick="loadDmInbox()">↻ Refresh</button></div><div class="dashboard-grid"><div class="card"><div class="section-head"><div><div class="card-title">CONVERSATIONS</div><h4>Recent contacts</h4></div></div><div id="dm-list" class="inbox-list"></div></div><div class="card"><div class="card-title">AUTOMATIC ACKNOWLEDGEMENT</div><div class="toggle-row"><div><strong>Auto response</strong><small>Send a reply when someone DMs the bot</small></div><label class="switch"><input type="checkbox" id="dm-auto-enabled"><span></span></label></div><label>Response text</label><textarea id="dm-auto-text" rows="5" placeholder="English acknowledgement…"></textarea><button class="btn btn-primary" onclick="saveDmAuto()">Save auto response</button><div class="form-status" id="dm-auto-status"></div><div class="info-callout"><strong>Privacy</strong><p>Only authorized staff can access this panel. DM content is stored in the bot database and included in its backup.</p></div></div></div><div class="card" id="dm-history-card" style="display:none"><div class="section-head"><div><div class="card-title">CONVERSATION</div><h4 id="dm-history-title">DM history</h4></div></div><div id="dm-history" class="chat-history"></div><div class="reply-box"><textarea id="dm-reply-text" rows="3" placeholder="Reply as Bova's Bot…"></textarea><button class="btn btn-primary" onclick="sendDmReply()">Send reply</button><div class="form-status" id="dm-reply-status"></div></div></div></section>
 
       <!-- BOOST -->
-      <section class="panel" id="panel-boost">
-        <div class="card">
-          <div class="card-title">BOOST THANK-YOU</div>
-          <p style="font-size:0.85rem;color:var(--dim)">
-            Default channel: <code>BOOST_CHANNEL_ID</code> (1384173136638906407).
-            Configure with <code>/boost_config</code>.
-          </p>
-        </div>
-      </section>
-
-      <!-- WEBLOGS -->
-      <section class="panel" id="panel-weblogs">
-        <div class="card">
-          <div class="card-title">WEBLOGS</div>
-          <p style="font-size:0.85rem;color:var(--dim)">
-            Toggles via <code>/weblogs_config</code>.<br/>
-            Joins/leaves → Info channel<br/>
-            Channel create/delete + staff actions → bot-room<br/>
-            Message delete/edit → message log channel
-          </p>
-        </div>
-      </section>
+      <section class="panel" id="panel-boost"><div class="page-intro"><div><div class="eyebrow">COMMUNITY</div><h3>Boost</h3><p>Boost thank-you automation is configured through Discord.</p></div></div><div class="card"><div class="feature-line"><span class="feature-icon">✦</span><div><strong>Boost thank-you</strong><small>Configure message and channel with <code>/boost_config</code>.</small></div><span class="status-badge">Discord</span></div></div></section>
 
       <!-- STATS -->
-      <section class="panel" id="panel-stats">
-        <div class="card">
-          <div class="card-title">STATS</div>
-          <p style="font-size:0.85rem;color:var(--dim)">
-            Peak hours use São Paulo timezone. Weekly media reset runs on Mondays (SP).
-            Commands: <code>/stats</code> <code>/topmedia</code>
-          </p>
-        </div>
-      </section>
+      <section class="panel" id="panel-stats"><div class="page-intro"><div><div class="eyebrow">ANALYTICS</div><h3>Stats</h3><p>Activity data tracked by the bot, including joins, leaves, hourly activity and top media.</p></div></div><div class="card"><div class="section-head"><div><div class="card-title">ACTIVITY SNAPSHOT</div><h4>Tracked metrics</h4></div><button class="btn btn-ghost" onclick="loadStats()">Refresh</button></div><div id="stats-summary" class="stats-detail"></div></div></section>
+
+      <!-- NAME HISTORY -->
+      <section class="panel" id="panel-namehistory"><div class="page-intro"><div><div class="eyebrow">ARCHIVE</div><h3>Name History</h3><p>Render an exported name history archive or use the Discord commands for live lookups.</p></div></div><div class="card"><label>Paste exported JSON</label><textarea id="nh-json" rows="9" placeholder='{"members":{...}}'></textarea><button class="btn btn-primary" onclick="renderNameHistory()">Render archive</button><div id="nh-out" class="archive-list"></div><div class="info-callout"><strong>Discord</strong><p><code>/namehistory</code> · <code>/namehistory_export</code></p></div></div></section>
+
+      <!-- SERVER -->
+      <section class="panel" id="panel-server"><div class="page-intro"><div><div class="eyebrow">OVERVIEW</div><h3>Server</h3><p>Live snapshot of the configured Discord server.</p></div><button class="btn btn-ghost" onclick="loadServerSummary()">↻ Refresh</button></div><div class="card"><div id="server-summary" class="server-overview"></div></div></section>
 
       <!-- COMMANDS -->
-      
-      <section class="panel" id="panel-namehistory">
-        <div class="card">
-          <div class="card-title">NAME HISTORY ARCHIVE</div>
-          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">
-            The bot stores join snapshots and every display/username change in <code>data/namehistory.json</code>
-            and posts live alerts to <code>bot-room</code>.
-            Live archive in this static panel is limited — export from Discord or paste JSON below for local view.
-          </p>
-          <label>Paste exported namehistory.json (from /namehistory_export)</label>
-          <textarea id="nh-json" rows="8" placeholder='{"members":{...}}'></textarea>
-          <button class="btn btn-primary" onclick="renderNameHistory()">RENDER ARCHIVE</button>
-          <div id="nh-out" style="margin-top:1rem;font-size:0.85rem"></div>
-          <p style="font-size:0.8rem;color:var(--dim);margin-top:0.8rem">
-            Discord: <code>/namehistory @user</code> · <code>/namehistory_export</code>
-          </p>
-        </div>
-      </section>
+      <section class="panel" id="panel-commands"><div class="page-intro"><div><div class="eyebrow">COMMAND CENTER</div><h3>All Discord Commands</h3><p>This catalog is based on the bot's current slash-command tree, not the older static panel list.</p></div><div class="command-count" id="command-count">—</div></div><div class="command-toolbar"><input id="command-search" placeholder="Search commands…" oninput="renderCommands()"><select id="command-filter" onchange="renderCommands()"><option value="all">All categories</option><option value="automation">Automation</option><option value="community">Community</option><option value="moderation">Moderation</option><option value="utility">Utility</option><option value="analytics">Analytics</option><option value="system">System</option><option value="support">Support</option></select></div><div class="card"><div id="command-list" class="command-list"></div></div><div class="info-grid"><div class="info-callout"><strong>Panel coverage</strong><p>The upgraded website adds direct controls for timestamp reminders, DM inbox, embeds, meets, polls, auto-feeds and auto-role. The remaining Discord-only tools are listed above so nothing is hidden.</p></div><div class="info-callout"><strong>Important correction</strong><p>The old web page referenced several ticket commands that do not exist in this version. The catalog now reflects the actual commands loaded by the bot.</p></div></div></section>
 
-      <section class="panel" id="panel-commands">
-        <div class="card">
-          <div class="card-title">ALL SLASH COMMANDS</div>
-          <div style="font-size:0.85rem;line-height:1.8;color:var(--dim)">
-            <strong style="color:var(--text)">Moderation</strong><br/>
-            /delete · /purge<br/><br/>
-            <strong style="color:var(--text)">Utilities</strong><br/>
-            /ping · /info · /timestamp · /help · /panel<br/><br/>
-            <strong style="color:var(--text)">Invite</strong><br/>
-            /invitepanel<br/><br/>
-            <strong style="color:var(--text)">Auto-Role</strong><br/>
-            /autorole_panel · /autorole_add · /autorole_remove · /autorole_list · /autorole_config<br/><br/>
-            <strong style="color:var(--text)">Meets</strong><br/>
-            /meet<br/><br/>
-            <strong style="color:var(--text)">Stats</strong><br/>
-            /stats · /topmedia<br/><br/>
-            <strong style="color:var(--text)">Tickets</strong><br/>
-            /ticket_panel · /ticket_config · /ticket_close · /ticket_add · /ticket_remove · /ticket_rename · /ticket_transcript<br/><br/>
-            <strong style="color:var(--text)">Auto Feeds</strong><br/>
-            /autofeed_add · /autofeed_list · /autofeed_remove · /autofeed_toggle<br/><br/>
-            <strong style="color:var(--text)">Boost</strong><br/>
-            /boost_config<br/><br/>
-            <strong style="color:var(--text)">WebLogs</strong><br/>
-            /weblogs_config
-          </div>
-        </div>
-      </section>
-    
-      <!-- TUTORIAL PT-BR -->
-      <section class="panel" id="panel-tutorial">
-        <div class="card">
-          <div class="card-title">TUTORIAL — COMANDOS DO BOT (PORTUGUÊS)</div>
-          <p style="font-size:0.9rem;color:var(--dim);margin-bottom:1.2rem">
-            Lista completa dos <strong>slash commands</strong> disponíveis.
-            Digite <code>/</code> no Discord e escolha o comando. A maioria das ações de staff exige permissão de gerenciar mensagens ou administrador.
-          </p>
+      <!-- WEBLOGS -->
+      <section class="panel" id="panel-weblogs"><div class="page-intro"><div><div class="eyebrow">LOGGING</div><h3>WebLogs</h3><p>Enable or disable server logging categories with the Discord command.</p></div></div><div class="card"><div class="feature-line"><span class="feature-icon">≡</span><div><strong>WebLogs configuration</strong><small><code>/weblogs_config</code> controls joins, leaves, message edits/deletes and channel events.</small></div><span class="status-badge">Discord</span></div></div></section>
 
-          <div class="card-title" style="font-size:0.95rem;margin-top:1rem">UTILIDADES</div>
-          <div style="font-size:0.85rem;line-height:1.7;color:var(--text)">
-            <code>/ping</code> — Mostra a latência do bot.<br/>
-            <code>/info</code> — Informações do bot, servidor e usuário.<br/>
-            <code>/help</code> — Painel cyberpunk interativo de ajuda no Discord.<br/>
-            <code>/timestamp</code> — Gera timestamp do Discord a partir de data/hora.<br/>
-            <code>/avatar</code> — Mostra o avatar de um usuário.<br/>
-            <code>/servericon</code> — Mostra o ícone do servidor.<br/>
-            <code>/membercount</code> — Contagem de membros (humanos e bots).<br/>
-            <code>/userinfo</code> — Detalhes de um membro (ID, entrada, cargos…).<br/>
-            <code>/serverinfo</code> — Informações gerais do servidor.<br/>
-            <code>/say</code> — <em>Staff</em> — Faz o bot enviar uma mensagem em um canal.
-          </div>
+      <!-- AUDIT -->
+      <section class="panel" id="panel-audit"><div class="page-intro"><div><div class="eyebrow">SECURITY</div><h3>Audit & Analysis</h3><p>Review API activity and database/backup state.</p></div><button class="btn btn-ghost" onclick="refreshAudit()">↻ Refresh</button></div><div class="dashboard-grid"><div class="card"><div class="card-title">DATABASE & BACKUP</div><div id="audit-db" class="server-overview"></div></div><div class="card"><div class="card-title">API AUDIT LOG</div><div id="audit-log" class="audit-list"></div></div></div></section>
 
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">PAINEL WEB</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/panel</code> — <em>Staff</em> — Envia o link do painel web + chave de acesso (só quem tem o cargo).
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">ENQUETES (POLLS)</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/poll</code> — <em>Staff</em> — Cria enquete com botões e resultado ao vivo.<br/>
-            <code>/poll_end</code> — <em>Staff</em> — Encerra uma enquete pelo ID.<br/>
-            <code>/poll_list</code> — <em>Staff</em> — Lista enquetes ativas.
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">MEETS &amp; ANÚNCIOS</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/meet</code> — <em>Staff</em> — Publica anúncio de meet (data, local, hosts…) com lembretes.
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">AUTO-ROLE</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/autorole_panel</code> — Publica o painel de cargos no canal.<br/>
-            <code>/autorole_add</code> — Adiciona um cargo ao painel.<br/>
-            <code>/autorole_remove</code> — Remove um cargo do painel.<br/>
-            <code>/autorole_list</code> — Lista cargos configurados.<br/>
-            <code>/autorole_config</code> — Define título/descrição do embed.
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">AUTO-FEEDS (mensagens agendadas)</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/autofeed_add</code> — Agenda mensagem (intervalo ou horário fixo).<br/>
-            <code>/autofeed_list</code> — Lista feeds.<br/>
-            <code>/autofeed_remove</code> — Remove um feed pelo ID.<br/>
-            <code>/autofeed_toggle</code> — Liga/desliga um feed.
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">TICKETS</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/ticket_panel</code> — Publica o painel para abrir ticket.<br/>
-            <code>/ticket_config</code> — Configura categoria, cargo staff, canal de log.<br/>
-            <code>/ticket_close</code> — Fecha o ticket atual (com transcript).<br/>
-            <code>/ticket_add</code> — Adiciona membro ao ticket.<br/>
-            <code>/ticket_remove</code> — Remove membro do ticket.<br/>
-            <code>/ticket_rename</code> — Renomeia o canal do ticket.<br/>
-            <code>/ticket_transcript</code> — Gera transcript manual.
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">COMANDOS PERSONALIZADOS</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/cmd_add</code> — <em>Staff</em> — Cria um comando/tag de texto ou embed.<br/>
-            <code>/cmd_remove</code> — Remove um comando personalizado.<br/>
-            <code>/cmd_list</code> — Lista comandos personalizados.<br/>
-            <code>/run</code> — Executa um comando personalizado pelo nome.
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">STICKY (mensagem fixa no final do canal)</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/sticky_set</code> — Define a mensagem que fica no fim do canal.<br/>
-            <code>/sticky_clear</code> — Remove o sticky do canal.
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">ESTATÍSTICAS &amp; MÍDIA</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/stats</code> — Estatísticas de atividade do servidor.<br/>
-            <code>/topmedia</code> — Ranking de mídia (scores / top da semana).
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">HISTÓRICO DE NOMES</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/namehistory</code> — Consulta histórico de nicks/usernames de um membro.<br/>
-            <code>/namehistory_export</code> — Exporta o arquivo de histórico (staff).
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">CONVITES &amp; BOOST</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/invitepanel</code> — Painel para solicitar convite (com cooldown).<br/>
-            <code>/boost_config</code> — Configura mensagem de agradecimento de boost.
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">LOGS</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/weblogs_config</code> — Liga/desliga tipos de log (join, leave, edit, canais…).
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">MODERAÇÃO (limitada de propósito)</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/delete</code> — Apaga uma mensagem pelo ID (anônimo para o chat).<br/>
-            <code>/purge</code> — Apaga várias mensagens recentes (1–100).<br/>
-            <em>Kick/ban não existem neste bot por decisão do projeto.</em>
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">ANIVERSÁRIOS (painel fácil)</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/birthday_panel</code> — Publica o painel com botões (lista / registrar / editar / signo).<br/>
-            <code>/birthday_announce_channel</code> — Canal dos avisos diários de aniversário.<br/>
-            Membros usam só botões e menus — sem digitar data em slash.
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">BOAS-VINDAS &amp; VOZ</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/welcome_config</code> — DM de entrada, log de voz, bot entrar em call (opcional).<br/>
-            <code>/welcome_test</code> — Testa a DM de boas-vindas em você.
-          </div>
-
-          <div class="card-title" style="font-size:0.95rem;margin-top:1.2rem">BACKUP &amp; BANCO (SQLite)</div>
-          <div style="font-size:0.85rem;line-height:1.7">
-            <code>/backup_now</code> — <em>Admin</em> — Força backup do banco no canal de backup.<br/>
-            <code>/backup_export</code> — <em>Admin</em> — Exporta DB/JSON para você (efêmero).<br/>
-            <code>/db_status</code> — <em>Admin</em> — Path, tamanho, última auto-backup.<br/>
-            <code>/backup_hint</code> — Explica como o auto-backup funciona no Render free.
-          </div>
-
-          <p style="font-size:0.8rem;color:var(--dim);margin-top:1.5rem">
-            Dica: no Discord, ative o Modo Desenvolvedor (Configurações → Avançado) para copiar IDs de canais, mensagens e usuários.
-          </p>
-        </div>
-      </section>
-
-    
-      <!-- AUDIT + SERVER ANALYSIS -->
-      <section class="panel" id="panel-audit">
-        <div class="card">
-          <div class="card-title">SERVER ANALYSIS</div>
-          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:0.8rem">
-            Live snapshot from the bot API (staff key required).
-          </p>
-          <button class="btn btn-primary" onclick="loadServerSummary()">↻ Refresh analysis</button>
-          <div id="server-summary" style="margin-top:1rem;font-size:0.85rem;line-height:1.6;color:var(--text)"></div>
-        </div>
-        <div class="card" style="margin-top:1rem">
-          <div class="card-title">API AUDIT LOG</div>
-          <p style="font-size:0.85rem;color:var(--dim);margin-bottom:0.8rem">
-            Who did what on the panel / API (last 50 entries).
-          </p>
-          <button class="btn btn-primary" onclick="loadAuditLog()">↻ Refresh audit</button>
-          <div id="audit-log" style="margin-top:1rem;font-size:0.8rem;font-family:ui-monospace,monospace;max-height:420px;overflow:auto;color:var(--dim)"></div>
-        </div>
-      </section>
-
+      <!-- TUTORIAL -->
+      <section class="panel" id="panel-tutorial"><div class="page-intro"><div><div class="eyebrow">GUIDE</div><h3>Help & Guide</h3><p>Quick reference for how the control center and Discord commands fit together.</p></div></div><div class="guide-grid"><div class="card"><div class="card-title">START HERE</div><h4>1. Authenticate</h4><p>Use your Discord user ID and the private panel key. Your key is not embedded in this website.</p><h4>2. Configure</h4><p>Use the web controls for common workflows. Use Discord slash commands for the deeper administrative tools.</p><h4>3. Verify</h4><p>Use Dashboard, Server and Audit to confirm the bot and database are healthy.</p></div><div class="card"><div class="card-title">TIMESTAMP EXAMPLE</div><pre>&lt;t:1789226111:R&gt;</pre><p class="muted">When a future relative timestamp appears in an announcement, the reminder engine schedules its notice automatically.</p></div></div></section>
     </main>
   </div>
 

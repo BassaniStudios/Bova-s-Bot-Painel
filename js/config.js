@@ -1,4 +1,4 @@
-/** Hardcoded server options + API base for the panel (Bovary Club Society) */
+/** Server options + API base for the panel (Bovary Club Society) */
 window.BOVA_CONFIG = {
   roles: [
     { id: "1424562832573206568", name: "BovaryMember" },
