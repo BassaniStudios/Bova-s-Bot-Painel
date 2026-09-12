@@ -1,40 +1,29 @@
-/** Access key — must match PANEL_ACCESS_KEY on Render */
+/** Access key — change via PANEL_ACCESS_KEY in bot .env and update here for the static panel */
 const ACCESS_KEY = "BovaClub#CoreAccess-2026!";
 
-/** Fallback if config.js is missing or still has the placeholder */
-const DEFAULT_API_BASE = "https://bovarybot.onrender.com";
-
 function getApiBase() {
-  const fromConfig = window.BOVA_API && window.BOVA_API.baseUrl;
-  if (fromConfig && !String(fromConfig).includes("YOUR-RENDER")) {
-    return String(fromConfig).replace(/\/$/, "");
-  }
-  return DEFAULT_API_BASE;
+  return (window.BOVA_API && window.BOVA_API.baseUrl) || "";
 }
-
 function getDiscordUserId() {
   return sessionStorage.getItem("bova_discord_id") || localStorage.getItem("bova_discord_id") || "";
 }
-
 function setDiscordUserId(id) {
   sessionStorage.setItem("bova_discord_id", id);
   localStorage.setItem("bova_discord_id", id);
 }
-
 async function apiPost(path, body) {
   const base = getApiBase();
-  if (!base) {
-    alert("API base URL missing. Check js/config.js");
+  if (!base || base.includes("YOUR-RENDER")) {
+    alert("Configure window.BOVA_API.baseUrl in js/config.js with your Render URL.");
     throw new Error("no api");
   }
-  if (!getDiscordUserId()) {
-    const entered = prompt(
-      "Your Discord User ID (Developer Mode → right-click yourself → Copy ID):"
-    );
+  const uid = getDiscordUserId();
+  if (!uid) {
+    const entered = prompt("Your Discord User ID (Developer Mode → right-click yourself → Copy ID):");
     if (!entered) throw new Error("no user id");
     setDiscordUserId(entered.trim());
   }
-  const res = await fetch(base + path, {
+  const res = await fetch(base.replace(/\/$/, "") + path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -50,11 +39,10 @@ async function apiPost(path, body) {
   }
   return data;
 }
-
 async function apiGet(path) {
   const base = getApiBase();
-  if (!base) {
-    alert("API base URL missing. Check js/config.js");
+  if (!base || base.includes("YOUR-RENDER")) {
+    alert("Configure BOVA_API.baseUrl in js/config.js");
     throw new Error("no api");
   }
   if (!getDiscordUserId()) {
@@ -62,7 +50,7 @@ async function apiGet(path) {
     if (!entered) throw new Error("no user id");
     setDiscordUserId(entered.trim());
   }
-  const res = await fetch(base + path, {
+  const res = await fetch(base.replace(/\/$/, "") + path, {
     headers: {
       "X-API-Key": ACCESS_KEY,
       "X-Discord-User-Id": getDiscordUserId(),
@@ -76,8 +64,8 @@ async function apiGet(path) {
   return data;
 }
 
-const C = () => window.BOVA_CONFIG || { roles: [], channels: [], hosts: [], servers: [], emojis: [] };
 
+const C = () => window.BOVA_CONFIG || { roles: [], channels: [], hosts: [], servers: [], emojis: [] };
 const TZ_LIST = [
   { id: "America/Sao_Paulo", label: "São Paulo (UTC-3)", offset: -3 },
   { id: "UTC", label: "UTC", offset: 0 },
@@ -87,7 +75,6 @@ const TZ_LIST = [
   { id: "Europe/Paris", label: "Paris (UTC+1)", offset: 1 },
   { id: "Asia/Tokyo", label: "Tokyo (UTC+9)", offset: 9 },
 ];
-
 function fillTz(sel, preferred) {
   if (!sel) return;
   sel.innerHTML = "";
@@ -100,14 +87,12 @@ function fillTz(sel, preferred) {
     sel.appendChild(o);
   });
 }
-
 function onTsTz() {
   const sel = document.getElementById("ts-tz");
   const off = document.getElementById("ts-offset");
   if (sel && off) off.value = sel.value;
   updateTs();
 }
-
 function renderNameHistory() {
   const raw = document.getElementById("nh-json")?.value || "";
   const out = document.getElementById("nh-out");
@@ -115,28 +100,24 @@ function renderNameHistory() {
   try {
     const data = JSON.parse(raw);
     const members = data.members || data;
-    const rows = Object.values(members)
-      .slice(0, 80)
-      .map((m) => {
-        const names = (m.names || [])
-          .slice(-5)
-          .map((n) => {
-            if (n.reason === "rename")
-              return `${n.previous_display_name || "?"} → <strong>${esc(n.display_name || "?")}</strong>`;
-            return `first: <strong>${esc(n.display_name || "?")}</strong>`;
-          })
-          .join("<br/>");
-        return `<div class="card" style="margin-bottom:0.5rem">
-        <strong>${esc(m.display_name || m.username || m.user_id)}</strong>
-        <code>${m.user_id || ""}</code>
-        <div style="color:var(--dim);margin-top:0.4rem;font-size:0.8rem">${names || "—"}</div>
+    const rows = Object.values(members).slice(0, 80).map((m) => {
+      const names = (m.names || []).slice(-5).map((n) => {
+        if (n.reason === "rename")
+          return `${(n.previous_display_name||"?")} → <strong>${esc(n.display_name||"?")}</strong>`;
+        return `first: <strong>${esc(n.display_name||"?")}</strong>`;
+      }).join("<br/>");
+      return `<div class="card" style="margin-bottom:0.5rem">
+        <strong>${esc(m.display_name||m.username||m.user_id)}</strong>
+        <code>${m.user_id||""}</code>
+        <div style="color:var(--dim);margin-top:0.4rem;font-size:0.8rem">${names||"—"}</div>
       </div>`;
-      });
+    });
     out.innerHTML = rows.join("") || "<p style='color:var(--dim)'>No members in file.</p>";
   } catch (e) {
     out.innerHTML = `<p style="color:#ff4060">Invalid JSON: ${esc(e.message)}</p>`;
   }
 }
+
 
 function tryUnlock() {
   const input = document.getElementById("gate-input");
@@ -151,11 +132,9 @@ function tryUnlock() {
     err.style.display = "block";
   }
 }
-
 document.getElementById("gate-input")?.addEventListener("keydown", (e) => {
   if (e.key === "Enter") tryUnlock();
 });
-
 if (sessionStorage.getItem("bova_auth") === "1") {
   document.getElementById("gate").classList.add("hidden");
   document.getElementById("app").style.display = "flex";
@@ -163,14 +142,9 @@ if (sessionStorage.getItem("bova_auth") === "1") {
 }
 
 function switchTab(name) {
-  document.querySelectorAll(".tab-btn").forEach((b) =>
-    b.classList.toggle("active", b.dataset.tab === name)
-  );
-  document.querySelectorAll(".panel").forEach((p) =>
-    p.classList.toggle("active", p.id === `panel-${name}`)
-  );
+  document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+  document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === `panel-${name}`));
 }
-
 document.querySelectorAll(".tab-btn").forEach((btn) => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
 });
@@ -223,7 +197,6 @@ function renderArRoles() {
     hint.innerHTML = `Roles ready (${arRoles.length}). In Discord run <code>/autorole_add</code> for each, then <code>/autorole_panel</code>.`;
   }
 }
-
 function addArRole() {
   const sel = document.getElementById("ar-role-select");
   const id = sel.value;
@@ -236,25 +209,21 @@ function addArRole() {
   renderArRoles();
   document.getElementById("ar-role-label").value = "";
 }
-
 function removeArRole(i) {
   arRoles.splice(i, 1);
   renderArRoles();
 }
-
 function updateArPreview() {
   const title = document.getElementById("ar-title")?.value || "";
   const desc = document.getElementById("ar-desc")?.value || "";
   const color = document.getElementById("ar-color")?.value || "#B450FF";
   const box = document.getElementById("ar-preview");
   if (!box) return;
-  const btns =
-    arRoles.map((r) => `${r.emoji || ""} ${esc(r.label)}`).join(" · ") || "(no roles yet)";
+  const btns = arRoles.map((r) => `${r.emoji || ""} ${esc(r.label)}`).join(" · ") || "(no roles yet)";
   box.innerHTML = `<div class="ep-title" style="border-left:4px solid ${color};padding-left:8px">${esc(title)}</div>
     <div class="ep-desc">${esc(desc)}</div>
     <div style="margin-top:0.6rem;font-size:0.8rem;color:var(--dim)">Buttons: ${btns}</div>`;
 }
-
 function exportArConfig() {
   const data = {
     title: document.getElementById("ar-title")?.value,
@@ -280,37 +249,28 @@ function updateEmPreview() {
     ${img ? `<img src="${esc(img)}" alt="" onerror="this.style.display='none'" />` : ""}
     <div style="margin-top:0.5rem;font-size:0.75rem;color:var(--dim)">${esc(footer)}</div>`;
 }
-
 function copyEmWebhookPayload() {
   const payload = {
     content: (() => {
       const r = document.getElementById("em-role");
       return r?.value ? `<@&${r.value}>` : undefined;
     })(),
-    embeds: [
-      {
-        title: document.getElementById("em-title")?.value || undefined,
-        description: document.getElementById("em-desc")?.value || undefined,
-        color: parseInt((document.getElementById("em-color")?.value || "#00E5FF").slice(1), 16),
-        image: document.getElementById("em-image")?.value
-          ? { url: document.getElementById("em-image").value }
-          : undefined,
-        footer: document.getElementById("em-footer")?.value
-          ? { text: document.getElementById("em-footer").value }
-          : undefined,
-      },
-    ],
+    embeds: [{
+      title: document.getElementById("em-title")?.value || undefined,
+      description: document.getElementById("em-desc")?.value || undefined,
+      color: parseInt((document.getElementById("em-color")?.value || "#00E5FF").slice(1), 16),
+      image: document.getElementById("em-image")?.value ? { url: document.getElementById("em-image").value } : undefined,
+      footer: document.getElementById("em-footer")?.value ? { text: document.getElementById("em-footer").value } : undefined,
+    }],
   };
   copyText(JSON.stringify(payload, null, 2));
 }
-
 function copyEmJson() {
   copyEmWebhookPayload();
 }
 
 /* ---------- Meets ---------- */
 let mtSelectedHosts = [];
-
 function renderMtHosts() {
   const box = document.getElementById("mt-hosts");
   if (!box) return;
@@ -322,14 +282,12 @@ function renderMtHosts() {
     )
     .join("");
 }
-
 function toggleMtHost(h) {
   if (mtSelectedHosts.includes(h)) mtSelectedHosts = mtSelectedHosts.filter((x) => x !== h);
   else mtSelectedHosts.push(h);
   renderMtHosts();
   updateMtPreview();
 }
-
 function updateMtPreview() {
   const title = document.getElementById("mt-title")?.value || "Meet";
   const desc = document.getElementById("mt-desc")?.value || "";
@@ -350,7 +308,6 @@ function updateMtPreview() {
     hint.textContent = `Suggested: /meet title:${title} date_time:${dt} ...`;
   }
 }
-
 function copyMtCommand() {
   const title = document.getElementById("mt-title")?.value || "Meet";
   const desc = document.getElementById("mt-desc")?.value || "";
@@ -400,7 +357,6 @@ function toggleAfMode() {
   document.getElementById("af-fixed-box").style.display = mode === "fixed" ? "block" : "none";
   updateAfHint();
 }
-
 function updateAfHint() {
   const hint = document.getElementById("af-cmd-hint");
   if (!hint) return;
@@ -413,7 +369,6 @@ function updateAfHint() {
     hint.textContent = `Interval every ${document.getElementById("af-interval")?.value || 1440} minutes`;
   }
 }
-
 function copyAfCommand() {
   const msg = document.getElementById("af-msg")?.value || "";
   const ch = document.getElementById("af-channel");
@@ -434,17 +389,15 @@ function copyAfCommand() {
   copyText(cmd);
 }
 
-/* ---------- Poll / API actions ---------- */
+/* ---------- Init ---------- */
+
 async function postPoll() {
   const status = document.getElementById("poll-status");
   const channel = document.getElementById("poll-channel").value;
   const title = document.getElementById("poll-title").value.trim();
   const desc = document.getElementById("poll-desc").value.trim();
   const raw = document.getElementById("poll-options").value;
-  const options = raw
-    .split(/\n/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const options = raw.split(/\n/).map(s => s.trim()).filter(Boolean);
   const single = document.getElementById("poll-single").checked;
   const hours = parseFloat(document.getElementById("poll-hours").value) || 0;
   const color = document.getElementById("poll-color").value;
@@ -463,7 +416,7 @@ async function postPoll() {
       hours: hours > 0 ? hours : null,
       color,
     });
-    status.textContent = res.ok ? "✅ Poll created · id " + res.id : "❌ " + (res.error || "fail");
+    status.textContent = res.ok ? ("✅ Poll created · id " + res.id) : ("❌ " + (res.error || "fail"));
   } catch (e) {
     status.textContent = "❌ " + e.message;
   }
@@ -474,6 +427,7 @@ function initAll() {
   if (pollCh && window.BOVA_CONFIG && window.BOVA_CONFIG.channels) {
     fillSelect(pollCh, window.BOVA_CONFIG.channels, true);
   }
+
   const cfg = C();
   fillSelect(document.getElementById("ar-role-select"), cfg.roles);
   fillSelect(document.getElementById("ar-emoji-select"), cfg.emojis);
@@ -484,12 +438,14 @@ function initAll() {
   fillSelect(document.getElementById("mt-rem-ch"), cfg.channels);
   fillSelect(document.getElementById("af-channel"), cfg.channels);
   fillSelect(document.getElementById("af-role"), cfg.roles, true);
+
   document.getElementById("ar-role-select")?.addEventListener("change", () => {
     const sel = document.getElementById("ar-role-select");
     const name = sel.options[sel.selectedIndex]?.text || "";
     const label = document.getElementById("ar-role-label");
     if (label && !label.value) label.value = name;
   });
+
   fillTz(document.getElementById("mt-tz"), -3);
   fillTz(document.getElementById("ts-tz"), -3);
   fillTz(document.getElementById("af-tz"), -3);
@@ -501,6 +457,7 @@ function initAll() {
   updateTs();
   toggleAfMode();
 }
+
 
 async function postEmToDiscord() {
   try {
@@ -527,9 +484,7 @@ async function postArPanel() {
     const color = document.getElementById("ar-color")?.value;
     const data = await apiPost("/api/autorole/panel", {
       channel_id: ch,
-      title,
-      description,
-      color,
+      title, description, color,
       roles: arRoles,
     });
     alert("Auto-role panel posted! message_id=" + data.message_id);
@@ -587,20 +542,17 @@ async function postAfToDiscord() {
   } catch (e) {}
 }
 
+
 async function loadServerSummary() {
   const el = document.getElementById("server-summary");
   if (!el) return;
   el.textContent = "Loading…";
   try {
     const data = await apiGet("/api/server/summary");
-    if (data.error) {
-      el.textContent = "Error: " + data.error;
-      return;
-    }
-    const roles = (data.roles || [])
-      .slice(0, 12)
-      .map((r) => `• ${r.name} — ${r.members} members`)
-      .join("<br/>");
+    if (data.error) { el.textContent = "Error: " + data.error; return; }
+    let roles = (data.roles || []).slice(0, 12).map(r =>
+      `• ${r.name} — ${r.members} members`
+    ).join("<br/>");
     el.innerHTML = `
       <strong style="color:var(--text)">${esc(data.name)}</strong> · <code>${esc(data.id)}</code><br/>
       Members: <strong>${data.member_count}</strong> (👤 ${data.humans} · 🤖 ${data.bots})<br/>
@@ -621,26 +573,22 @@ async function loadAuditLog() {
   try {
     const data = await apiGet("/api/audit");
     const entries = data.entries || [];
-    if (!entries.length) {
-      el.textContent = "No audit entries yet.";
-      return;
-    }
-    el.innerHTML = entries
-      .map((e) => {
-        const ok = e.success ? "OK" : "FAIL";
-        return `<div style="margin-bottom:0.5rem;border-bottom:1px solid #2a2a45;padding-bottom:0.35rem">
+    if (!entries.length) { el.textContent = "No audit entries yet."; return; }
+    el.innerHTML = entries.map(e => {
+      const ok = e.success ? "OK" : "FAIL";
+      return `<div style="margin-bottom:0.5rem;border-bottom:1px solid #2a2a45;padding-bottom:0.35rem">
         <span style="color:var(--text)">${esc(e.ts || "")}</span>
         · actor <code>${esc(String(e.actor_id || "—"))}</code>
         · <strong>${esc(e.action || "")}</strong>
         · ${ok}
         ${e.detail ? `<br/><span style="opacity:0.75">${esc(JSON.stringify(e.detail).slice(0, 180))}</span>` : ""}
       </div>`;
-      })
-      .join("");
+    }).join("");
   } catch (e) {
     el.textContent = "Failed: " + e.message;
   }
 }
+
 
 async function loadTicketLog() {
   const el = document.getElementById("ticket-log-list");
@@ -649,22 +597,17 @@ async function loadTicketLog() {
   try {
     const data = await apiGet("/api/tickets");
     const entries = data.entries || [];
-    if (!entries.length) {
-      el.textContent = "No submissions yet.";
-      return;
-    }
-    el.innerHTML = entries
-      .map((e) => {
-        const kind = esc(e.kind || "");
-        const subj = esc(e.subject || "");
-        const body = esc((e.body || "").slice(0, 280));
-        return `<div style="margin-bottom:0.75rem;padding-bottom:0.6rem;border-bottom:1px solid #2a2a45">
+    if (!entries.length) { el.textContent = "No submissions yet."; return; }
+    el.innerHTML = entries.map(e => {
+      const kind = esc(e.kind || "");
+      const subj = esc(e.subject || "");
+      const body = esc((e.body || "").slice(0, 280));
+      return `<div style="margin-bottom:0.75rem;padding-bottom:0.6rem;border-bottom:1px solid #2a2a45">
         <strong style="color:var(--text)">[${kind}]</strong> ${subj}<br/>
-        <span style="opacity:0.8">by <code>${esc(String(e.user_id || ""))}</code> · ${esc(e.created_at || "")} · id ${esc(String(e.id || ""))}</span><br/>
+        <span style="opacity:0.8">by <code>${esc(String(e.user_id||""))}</code> · ${esc(e.created_at||"")} · id ${esc(String(e.id||""))}</span><br/>
         <span style="color:var(--dim)">${body}</span>
       </div>`;
-      })
-      .join("");
+    }).join("");
   } catch (err) {
     el.textContent = "Failed: " + err.message;
   }
