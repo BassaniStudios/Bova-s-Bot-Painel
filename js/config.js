@@ -12,6 +12,7 @@ window.BOVA_CONFIG = {
     { id: "1532045910073147412", name: "🐺┃fivem-meets" },
     { id: "1384173136638906403", name: "📬┃announcements" },
     { id: "1533492240343629865", name: "🏷️┃fivem-server" },
+    { id: "1425297078816473109", name: "Polls channel" },
   ],
   hosts: ["Bassani_", "JuanLuma99", "BLACKGHOSTz4", "_Mickey-"],
   servers: ["GTAO Legacy", "FiveM Fenrir Yakuza"],
