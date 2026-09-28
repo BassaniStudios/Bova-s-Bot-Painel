@@ -1,4 +1,4 @@
-/** Server options + API base for the panel (Bovary Club Society) */
+/** Server options + API base for the panel (Bovary Club Society) — synced with bot v2.9.1 */
 window.BOVA_CONFIG = {
   roles: [
     { id: "1424562832573206568", name: "BovaryMember" },
@@ -7,14 +7,12 @@ window.BOVA_CONFIG = {
     { id: "1547647694997037137", name: "Staff API" },
   ],
   channels: [
-    // Meets / announcements (panel pickers)
     { id: "1384173136638906401", name: "⭐┃legacy-meets" },
     { id: "1541614511268831313", name: "🦉┃owl-session-legacy" },
     { id: "1532045910073147412", name: "🐺┃fivem-meets" },
     { id: "1384173136638906403", name: "📬┃announcements" },
     { id: "1533492240343629865", name: "🏷️┃fivem-server" },
     { id: "1425297078816473109", name: "Polls channel" },
-    // Media / auto-react channels (IDs only — names optional in Discord)
     { id: "1384173879295213689", name: "Media · auto-react" },
     { id: "1384174586345816134", name: "Media · auto-react" },
     { id: "1537555862372094112", name: "Media · auto-react" },
