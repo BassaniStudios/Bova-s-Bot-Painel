@@ -1,4 +1,4 @@
-/* Bova Core Control Center · v2.9.1 · Neon Edition */
+/* Bova Core Control Center · v2.9.7 · Neon Edition */
 const C = () => window.BOVA_CONFIG || { roles: [], channels: [], hosts: [], servers: [], emojis: [] };
 const TZ_LIST = [
   { id: "America/Sao_Paulo", label: "São Paulo (UTC-3)", offset: -3 },
@@ -16,6 +16,7 @@ const TITLES = {
   commands: ["OVERVIEW", "Command Center"],
   timestamp: ["AUTOMATION", "Timestamp Reminders"],
   meets: ["ANNOUNCEMENTS", "Meets"],
+  arcade: ["AUTOMATION", "Arcade"],
   tickets: ["COMMUNITY", "Tickets"],
   polls: ["COMMUNITY", "Polls"],
   dm: ["PRIVATE SUPPORT", "DM Inbox"],
@@ -27,7 +28,7 @@ const TITLES = {
   tutorial: ["GUIDE", "Help & Guide"],
 };
 
-/* Command catalog synced with bot v2.9.1 — removed autofeed, autorole, boost_config, welcome_*, bovasay, member_time */
+/* Command catalog synced with bot v2.9.7 — removed autofeed, autorole, boost_config, welcome_*, bovasay, member_time */
 const COMMAND_META = {
   automation: ["timestamp_reminder_config", "timestamp_reminder_status"],
   community: [
@@ -54,7 +55,7 @@ const COMMAND_META = {
     "backup_export", "backup_hint", "backup_now", "db_status",
     "weblogs_config", "msglog_test", "memberlog_test",
   ],
-  arcade: ["loveprofessor_panel", "loveprofessor_test", "nazarspeaks_panel", "nazarspeaks_test"],
+  arcade: ["loveprofessor_panel", "loveprofessor_test", "nazarspeaks_panel", "nazarspeaks_test", "cursedhoroscope_panel", "cursedhoroscope_test", "cursedhoroscope_panel", "cursedhoroscope_test"],
   support: ["cmd_add", "cmd_list", "cmd_remove", "run"],
 };
 
@@ -235,6 +236,32 @@ function tryUnlock() {
   });
 }
 
+
+/* ===== ARCADE ===== */
+async function runArcade(game, action) {
+  const status = document.getElementById("arcade-status");
+  const labels = {
+    loveprofessor: "The Love Professor",
+    nazarspeaks: "Nazar Speaks",
+    cursedhoroscope: "Cursed Horoscope",
+  };
+  const actionLabel = action === "panel" ? "Post Panel" : "Run Test";
+  if (status) status.textContent = `Running ${actionLabel} for ${labels[game] || game}…`;
+  try {
+    const d = await apiPost("/api/arcade", { game, action });
+    if (d.error) throw new Error(d.error);
+    const msg = `${labels[game] || game}: ${actionLabel} OK` +
+      (d.channel_id ? ` · channel ${d.channel_id}` : "") +
+      (d.message_id ? ` · msg ${d.message_id}` : "");
+    if (status) status.textContent = msg;
+    toast(msg);
+  } catch (e) {
+    const err = e.message || String(e);
+    if (status) status.textContent = "Error: " + err;
+    toast("Arcade failed: " + err, "error");
+  }
+}
+
 /* ===== TABS ===== */
 function switchTab(name) {
   document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
@@ -278,7 +305,7 @@ function isStaffCommand(name) {
     "purge", "say", "ticket_list", "ticket_setup", "namehistory_export",
     "weblogs_config", "timestamp_reminder_config", "bova", "investigate",
     "permission_audit", "guild_snapshot", "mass_action_alert", "who_deleted",
-    "loveprofessor_panel", "loveprofessor_test", "nazarspeaks_panel", "nazarspeaks_test",
+    "loveprofessor_panel", "loveprofessor_test", "nazarspeaks_panel", "nazarspeaks_test", "cursedhoroscope_panel", "cursedhoroscope_test",
     "db_status", "log_health", "memberlog_test", "msglog_test",
   ].includes(name);
 }

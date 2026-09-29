@@ -19,7 +19,7 @@
       </div>
       <div class="eyebrow">BOVARY CLUB SOCIETY · PRIVATE</div>
       <h1>BOVA<span>CORE</span></h1>
-      <p class="gate-copy">Secure staff control center · Neon edition v2.9.1</p>
+      <p class="gate-copy">Secure staff control center · Neon edition v2.9.7</p>
       <label for="gate-user-id">Discord User ID</label>
       <input id="gate-user-id" inputmode="numeric" placeholder="Your Discord user ID" autocomplete="off" />
       <label for="gate-input">Access key</label>
@@ -47,6 +47,7 @@
           <div class="nav-label">Automation</div>
           <button class="tab-btn" data-tab="timestamp"><i>◷</i> Timestamp Reminders <span class="nav-dot"></span></button>
           <button class="tab-btn" data-tab="meets"><i>◇</i> Meets</button>
+          <button class="tab-btn" data-tab="arcade"><i>◆</i> Arcade <span class="nav-dot"></span></button>
         </div>
         <div class="nav-group">
           <div class="nav-label">Community</div>
@@ -65,7 +66,7 @@
         </div>
       </div>
       <div class="sidebar-foot">
-        Bova's Bot · <span class="ver">v2.9.1</span><br>
+        Bova's Bot · <span class="ver">v2.9.7</span><br>
         Neon Panel · Staff only
       </div>
     </aside>
@@ -89,7 +90,7 @@
           <div class="page-intro">
             <div class="eyebrow">BOVA CORE · PRIVATE SERVER</div>
             <h3>Everything in one place.</h3>
-            <p>Monitor your bot, configure automation, manage community tools and access every Discord command from one neon workspace. Synced with bot <strong>v2.9.1</strong>.</p>
+            <p>Monitor your bot, configure automation, manage community tools and access every Discord command from one neon workspace. Synced with bot <strong>v2.9.7</strong>.</p>
           </div>
           <div class="metrics">
             <div class="metric"><span class="metric-icon">⚡</span><div><strong id="m-latency">—</strong><small>API latency</small></div></div>
@@ -114,12 +115,12 @@
               <div id="dash-status" class="muted">Loading overview…</div>
             </div>
             <div class="card">
-              <div class="card-title">RECENT CHANGES · v2.9.1</div>
+              <div class="card-title">RECENT CHANGES · v2.9.7</div>
               <ul style="padding-left:1.1rem;font-size:0.88rem;color:var(--muted);line-height:1.7">
                 <li>Removed Auto-Role, Auto Feeds and <code>/boost_config</code></li>
                 <li>Removed welcome DM commands and <code>/bovasay</code> / <code>/member_time</code></li>
                 <li>Added staff audit tools, rankings, snapshots &amp; investigation panel</li>
-                <li>Nazar Speaks + Love Professor arcade panels</li>
+                <li>Nazar Speaks + Love Professor + Cursed Horoscope arcade panels</li>
                 <li>Query commands support private or channel visibility</li>
               </ul>
             </div>
@@ -218,6 +219,97 @@
           </div>
         </section>
 
+
+        <!-- ARCADE -->
+        <section class="panel" id="panel-arcade">
+          <div class="page-intro">
+            <div>
+              <div class="eyebrow">AUTOMATION</div>
+              <h3>Arcade</h3>
+              <p>Activate sticky panels and run tests for the three mini-games. Each action runs in the game’s fixed Discord channel.</p>
+            </div>
+          </div>
+
+          <div class="arcade-grid">
+            <!-- Love Professor -->
+            <article class="arcade-card arcade-love">
+              <div class="arcade-banner">
+                <img src="https://ik.imagekit.io/BassaniStudios/TheLoveProfessor-GTAO-ArcadeGameLogo.webp" alt="The Love Professor" />
+                <div class="arcade-banner-overlay">
+                  <span class="arcade-tag">GTAO ARCADE</span>
+                  <h4>The Love Professor</h4>
+                  <p>Love meter · queue · challenges</p>
+                </div>
+              </div>
+              <div class="arcade-body">
+                <div class="arcade-meta">
+                  <span>Channel</span>
+                  <code>1553823431349371042</code>
+                </div>
+                <div class="arcade-actions">
+                  <button class="btn btn-primary" onclick="runArcade('loveprofessor','panel')">Post Panel</button>
+                  <button class="btn btn-ghost" onclick="runArcade('loveprofessor','test')">Run Test</button>
+                </div>
+                <p class="arcade-hint muted">Discord: <code>/loveprofessor_panel</code> · <code>/loveprofessor_test</code></p>
+              </div>
+            </article>
+
+            <!-- Nazar Speaks -->
+            <article class="arcade-card arcade-nazar">
+              <div class="arcade-banner">
+                <img src="https://ik.imagekit.io/BassaniStudios/MadamNazar-GTAO-Livery.webp" alt="Nazar Speaks" />
+                <div class="arcade-banner-overlay">
+                  <span class="arcade-tag">GTAO ARCADE</span>
+                  <h4>Nazar Speaks</h4>
+                  <p>Madam Nazar fortunes</p>
+                </div>
+              </div>
+              <div class="arcade-body">
+                <div class="arcade-meta">
+                  <span>Channel</span>
+                  <code>1531417799300350073</code>
+                </div>
+                <div class="arcade-actions">
+                  <button class="btn btn-primary" onclick="runArcade('nazarspeaks','panel')">Post Panel</button>
+                  <button class="btn btn-ghost" onclick="runArcade('nazarspeaks','test')">Run Test</button>
+                </div>
+                <p class="arcade-hint muted">Discord: <code>/nazarspeaks_panel</code> · <code>/nazarspeaks_test</code></p>
+              </div>
+            </article>
+
+            <!-- Cursed Horoscope -->
+            <article class="arcade-card arcade-cursed">
+              <div class="arcade-banner">
+                <img src="https://ik.imagekit.io/BassaniStudios/madame%20boavry.gif" alt="Cursed Horoscope" />
+                <div class="arcade-banner-overlay">
+                  <span class="arcade-tag">HALLOWEEN</span>
+                  <h4>Cursed Horoscope</h4>
+                  <p>12 signs · cursed predictions</p>
+                </div>
+              </div>
+              <div class="arcade-body">
+                <div class="arcade-meta">
+                  <span>Channel</span>
+                  <code>1554302868293554196</code>
+                </div>
+                <div class="arcade-actions">
+                  <button class="btn btn-primary" onclick="runArcade('cursedhoroscope','panel')">Post Panel</button>
+                  <button class="btn btn-ghost" onclick="runArcade('cursedhoroscope','test')">Run Test</button>
+                </div>
+                <p class="arcade-hint muted">Discord: <code>/cursedhoroscope_panel</code> · <code>/cursedhoroscope_test</code></p>
+              </div>
+            </article>
+          </div>
+
+          <div class="card" style="margin-top:1.25rem">
+            <div class="card-title">HOW IT WORKS</div>
+            <div class="feature-line"><span class="feature-icon">◆</span><div><strong>Post Panel</strong><small>Deletes the old sticky (if any) and posts a fresh interactive panel in that game’s channel.</small></div></div>
+            <div class="feature-line"><span class="feature-icon">⚡</span><div><strong>Run Test</strong><small>Posts a sample result in the same channel without changing the sticky panel.</small></div></div>
+            <div class="feature-line"><span class="feature-icon">🔒</span><div><strong>Staff only</strong><small>Uses the same panel API key + Discord staff role as the rest of Bova Core.</small></div></div>
+            <p id="arcade-status" class="muted" style="margin-top:0.75rem">Ready.</p>
+          </div>
+        </section>
+
         <!-- TICKETS -->
         <section class="panel" id="panel-tickets">
           <div class="page-intro"><div><div class="eyebrow">COMMUNITY</div><h3>Tickets</h3><p>Easy Ticket / Suggestions / Report panel — managed mainly via Discord slash commands.</p></div></div>
@@ -313,7 +405,7 @@
 
         <!-- COMMANDS -->
         <section class="panel" id="panel-commands">
-          <div class="page-intro"><div><div class="eyebrow">OVERVIEW</div><h3>Command Center</h3><p>Full slash-command catalog synced with bot <strong>v2.9.1</strong> (67 commands). Removed Auto-Role, Auto Feeds, welcome DMs and boost config.</p></div></div>
+          <div class="page-intro"><div><div class="eyebrow">OVERVIEW</div><h3>Command Center</h3><p>Full slash-command catalog synced with bot <strong>v2.9.7</strong> (67 commands). Removed Auto-Role, Auto Feeds, welcome DMs and boost config.</p></div></div>
           <div class="command-toolbar">
             <input id="command-search" placeholder="Search commands…" oninput="renderCommands()" />
             <select id="command-filter" onchange="renderCommands()">
