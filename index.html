@@ -19,7 +19,7 @@
       </div>
       <div class="eyebrow">BOVARY CLUB SOCIETY · PRIVATE</div>
       <h1>BOVA<span>CORE</span></h1>
-      <p class="gate-copy">Secure staff control center · Neon edition v2.9.7</p>
+      <p class="gate-copy">Secure staff control center · Neon edition v2.12.0</p>
       <label for="gate-user-id">Discord User ID</label>
       <input id="gate-user-id" inputmode="numeric" placeholder="Your Discord user ID" autocomplete="off" />
       <label for="gate-input">Access key</label>
@@ -42,18 +42,19 @@
           <button class="tab-btn active" data-tab="dashboard"><i>⌂</i> Dashboard</button>
           <button class="tab-btn" data-tab="server"><i>◉</i> Server</button>
           <button class="tab-btn" data-tab="commands"><i>⌘</i> Command Center</button>
+          <button class="tab-btn" data-tab="diagnostics"><i>⚡</i> Diagnostics <span class="nav-dot"></span></button>
         </div>
         <div class="nav-group">
           <div class="nav-label">Automation</div>
-          <button class="tab-btn" data-tab="timestamp"><i>◷</i> Timestamp Reminders <span class="nav-dot"></span></button>
+          <button class="tab-btn" data-tab="timestamp"><i>◷</i> Timestamp Reminders</button>
           <button class="tab-btn" data-tab="meets"><i>◇</i> Meets</button>
-          <button class="tab-btn" data-tab="arcade"><i>◆</i> Arcade <span class="nav-dot"></span></button>
+          <button class="tab-btn" data-tab="arcade"><i>◆</i> Arcade</button>
         </div>
         <div class="nav-group">
           <div class="nav-label">Community</div>
           <button class="tab-btn" data-tab="tickets"><i>▣</i> Tickets</button>
-          <button class="tab-btn" data-tab="polls"><i>◇</i> Polls</button>
-          <button class="tab-btn" data-tab="dm"><i>✉</i> DM Inbox <span class="nav-dot"></span></button>
+          <button class="tab-btn" data-tab="nitro"><i>✦</i> Nitro Raffles</button>
+          <button class="tab-btn" data-tab="dm"><i>✉</i> DM Inbox</button>
           <button class="tab-btn" data-tab="namehistory"><i>↳</i> Name History</button>
         </div>
         <div class="nav-group">
@@ -66,7 +67,7 @@
         </div>
       </div>
       <div class="sidebar-foot">
-        Bova's Bot · <span class="ver">v2.9.7</span><br>
+        Bova's Bot · <span class="ver">v2.12.0</span><br>
         Neon Panel · Staff only
       </div>
     </aside>
@@ -90,11 +91,11 @@
           <div class="page-intro">
             <div class="eyebrow">BOVA CORE · PRIVATE SERVER</div>
             <h3>Everything in one place.</h3>
-            <p>Monitor your bot, configure automation, manage community tools and access every Discord command from one neon workspace. Synced with bot <strong>v2.9.7</strong>.</p>
+            <p>Monitor the bot, automation and staff tools. Synced with bot <strong>v2.12.0</strong> (Turso · Nitro Raffles · Diagnostics).</p>
           </div>
           <div class="metrics">
             <div class="metric"><span class="metric-icon">⚡</span><div><strong id="m-latency">—</strong><small>API latency</small></div></div>
-            <div class="metric"><span class="metric-icon">◉</span><div><strong id="m-guild">—</strong><small>Guild online</small></div></div>
+            <div class="metric"><span class="metric-icon">◉</span><div><strong id="m-guild">—</strong><small>Bot status</small></div></div>
             <div class="metric"><span class="metric-icon">⌘</span><div><strong id="m-commands">—</strong><small>Slash commands</small></div></div>
             <div class="metric"><span class="metric-icon">💾</span><div><strong id="m-db">—</strong><small>Database</small></div></div>
           </div>
@@ -102,6 +103,7 @@
             <div class="card">
               <div class="section-head"><div><div class="card-title">QUICK ACCESS</div><h4>Most-used controls</h4></div></div>
               <div class="quick-grid">
+                <button onclick="switchTab('diagnostics')"><span>⚡</span> Diagnostics</button>
                 <button onclick="switchTab('timestamp')"><span>◷</span> Timestamp</button>
                 <button onclick="switchTab('meets')"><span>◇</span> Create Meet</button>
                 <button onclick="switchTab('embed')"><span>▤</span> Embed</button>
@@ -115,31 +117,78 @@
               <div id="dash-status" class="muted">Loading overview…</div>
             </div>
             <div class="card">
-              <div class="card-title">RECENT CHANGES · v2.9.7</div>
+              <div class="card-title">RECENT CHANGES · v2.12.0</div>
               <ul style="padding-left:1.1rem;font-size:0.88rem;color:var(--muted);line-height:1.7">
-                <li>Removed Auto-Role, Auto Feeds and <code>/boost_config</code></li>
-                <li>Removed welcome DM commands and <code>/bovasay</code> / <code>/member_time</code></li>
-                <li>Added staff audit tools, rankings, snapshots &amp; investigation panel</li>
-                <li>Nazar Speaks + Love Professor + Cursed Horoscope arcade panels</li>
-                <li>Query commands support private or channel visibility</li>
+                <li>API base → <code>bovasbot2-0.onrender.com</code></li>
+                <li>Polls removed (replaced by Nitro Raffles)</li>
+                <li>Diagnostics: health, audit log, slash sync</li>
+                <li>Timestamp API aligned (<code>minutes</code> + <code>text</code>)</li>
+                <li>Turso storage · command catalog updated</li>
               </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- DIAGNOSTICS -->
+        <section class="panel" id="panel-diagnostics">
+          <div class="page-intro">
+            <div>
+              <div class="eyebrow">SYSTEM</div>
+              <h3>Diagnostics</h3>
+              <p>When slash commands time out or the bot looks offline, use these tools first. Health is public; other actions need staff auth.</p>
+            </div>
+          </div>
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-title">BOT HEALTH · /health</div>
+              <div class="form-actions" style="margin-bottom:0.75rem">
+                <button class="btn btn-primary" onclick="runHealthCheck()">Run health check</button>
+                <button class="btn btn-ghost" onclick="runAuthCheck()">Test auth</button>
+              </div>
+              <div id="diag-auth-out" class="muted" style="margin-bottom:0.5rem"></div>
+              <div id="diag-health" class="muted">Click “Run health check”.</div>
+            </div>
+            <div class="card">
+              <div class="card-title">SLASH COMMAND SYNC</div>
+              <p class="muted">If Discord menus are empty or stale after a deploy, force a guild re-sync (may take up to a few minutes).</p>
+              <div class="form-actions">
+                <button class="btn btn-primary" onclick="runSyncCommands(false)">Sync commands</button>
+                <button class="btn btn-ghost" onclick="if(confirm('Force wipe + sync? Use rarely.'))runSyncCommands(true)">Force wipe + sync</button>
+              </div>
+              <div id="diag-sync-out" class="muted" style="margin-top:0.75rem">No sync run yet.</div>
+              <p class="muted" style="margin-top:0.75rem">Discord: <code>/sync_commands</code> · also <code>/log_health</code> · <code>/db_status</code> · <code>/msglog_test</code></p>
+            </div>
+            <div class="card">
+              <div class="card-title">STAFF AUDIT LOG (API)</div>
+              <div class="form-actions" style="margin-bottom:0.5rem">
+                <button class="btn btn-ghost" onclick="loadAuditLogOnly()">↻ Refresh audit</button>
+              </div>
+              <div id="diag-audit" class="muted">Loading…</div>
+            </div>
+            <div class="card">
+              <div class="card-title">WHEN THE BOT “DOES NOT RESPOND”</div>
+              <ol style="padding-left:1.1rem;font-size:0.88rem;color:var(--muted);line-height:1.7;margin:0">
+                <li>Run <strong>Health check</strong> — if it fails, Render may be sleeping or restarting.</li>
+                <li>Confirm UptimeRobot hits <code>/health</code> every 5 minutes.</li>
+                <li>Wait for log line <code>está online</code> after a deploy (~1 min).</li>
+                <li>Use <strong>Sync commands</strong> if slash menus are missing.</li>
+                <li>In Discord: <code>/log_health</code>, <code>/db_status</code>, <code>/ping</code>.</li>
+              </ol>
             </div>
           </div>
         </section>
 
         <!-- TIMESTAMP -->
         <section class="panel" id="panel-timestamp">
-          <div class="page-intro"><div><div class="eyebrow">AUTOMATION</div><h3>Timestamp Reminders</h3><p>When a future relative timestamp appears in an announcement, the reminder engine schedules its notice automatically (±45s window).</p></div></div>
+          <div class="page-intro"><div><div class="eyebrow">AUTOMATION</div><h3>Timestamp Reminders</h3><p>When a future <code>&lt;t:UNIX:R&gt;</code> appears in the guild, the bot reminds the same channel before the event (±45s window).</p></div></div>
           <div class="dashboard-grid">
             <div class="card">
               <div class="card-title">CONFIGURATION</div>
               <div class="check-row"><input type="checkbox" id="ts-enabled" /><label for="ts-enabled" style="margin:0;text-transform:none;letter-spacing:0">Enable automatic reminders</label></div>
-              <label>Offset (seconds before timestamp)</label>
-              <input id="ts-offset" type="number" value="300" min="0" max="86400" />
-              <label>Announce channel ID (optional override)</label>
-              <input id="ts-channel" placeholder="Channel snowflake" />
-              <label>Custom reminder message</label>
-              <textarea id="ts-message" placeholder="Reminder: {timestamp} is coming up!"></textarea>
+              <label>Minutes before event</label>
+              <input id="ts-minutes" type="number" value="30" min="1" max="1440" />
+              <label>Custom reminder text (optional)</label>
+              <textarea id="ts-message" placeholder="Leave empty for default text"></textarea>
               <div class="form-actions">
                 <button class="btn btn-primary" onclick="saveTimestampConfig()">Save config</button>
                 <button class="btn btn-ghost" onclick="loadTimestampConfig()">Reload</button>
@@ -172,8 +221,7 @@
               <label>Image URL (optional)</label>
               <input id="em-image" placeholder="https://…" oninput="updateEmPreview()" />
               <div class="form-actions">
-                <button class="btn btn-primary" onclick="postEmToDiscord()">Post to Discord</button>
-                <button class="btn btn-ghost" onclick="copyEmJson()">Copy JSON</button>
+                <button class="btn btn-primary" onclick="postEmbed()">Post to Discord</button>
               </div>
             </div>
             <div class="card">
@@ -189,8 +237,6 @@
           <div class="dashboard-grid">
             <div class="card">
               <div class="card-title">MEET DETAILS</div>
-              <label>Title</label>
-              <input id="mt-title" value="Bovary Club Meet" oninput="updateMtPreview()" />
               <div class="form-row">
                 <div><label>Date</label><input id="mt-date" type="date" oninput="updateMtPreview()" /></div>
                 <div><label>Time</label><input id="mt-time" type="time" value="21:00" oninput="updateMtPreview()" /></div>
@@ -199,26 +245,31 @@
               <select id="mt-tz" onchange="updateMtPreview()"></select>
               <label>Server</label>
               <select id="mt-server" onchange="updateMtPreview()"></select>
-              <label>Location / description</label>
-              <textarea id="mt-desc" placeholder="Where to meet, rules, vibe…" oninput="updateMtPreview()"></textarea>
-              <label>Hosts (click to toggle)</label>
-              <div class="chip-row" id="mt-hosts"></div>
+              <label>Notes</label>
+              <textarea id="mt-notes" placeholder="Where to meet, rules, vibe…" oninput="updateMtPreview()"></textarea>
+              <label>Host from list</label>
+              <select id="mt-host-sel"></select>
+              <label>Or custom host</label>
+              <input id="mt-host-custom" placeholder="Display name" />
+              <div class="form-actions">
+                <button class="btn btn-ghost" type="button" onclick="addMtHost()">+ Add host</button>
+              </div>
+              <div id="mt-hosts-list" style="margin:0.5rem 0"></div>
               <label>Mention role</label>
               <select id="mt-role"><option value="">None</option></select>
-              <label>Post channel</label>
+              <label>Reminder / post channel</label>
               <select id="mt-rem-ch"></select>
               <div class="form-actions">
-                <button class="btn btn-primary" onclick="postMtToDiscord()">Post meet</button>
-                <button class="btn btn-ghost" onclick="copyMtCommand()">Copy /meet hint</button>
+                <button class="btn btn-primary" onclick="postMeet()">Post meet</button>
               </div>
             </div>
             <div class="card">
               <div class="card-title">PREVIEW</div>
               <div id="mt-preview" class="preview-box">Meet preview…</div>
+              <p class="muted" style="margin-top:0.75rem">Discord: <code>/meet</code></p>
             </div>
           </div>
         </section>
-
 
         <!-- ARCADE -->
         <section class="panel" id="panel-arcade">
@@ -226,174 +277,129 @@
             <div>
               <div class="eyebrow">AUTOMATION</div>
               <h3>Arcade</h3>
-              <p>Activate sticky panels and run tests for the three mini-games. Each action runs in the game’s fixed Discord channel.</p>
+              <p>Post sticky panels or run tests for the three mini-games (fixed channels).</p>
             </div>
           </div>
-
           <div class="arcade-grid">
-            <!-- Love Professor -->
             <article class="arcade-card arcade-love">
               <div class="arcade-banner">
                 <img src="https://ik.imagekit.io/BassaniStudios/TheLoveProfessor-GTAO-ArcadeGameLogo.webp" alt="The Love Professor" />
                 <div class="arcade-banner-overlay">
                   <span class="arcade-tag">GTAO ARCADE</span>
                   <h4>The Love Professor</h4>
-                  <p>Love meter · queue · challenges</p>
                 </div>
               </div>
               <div class="arcade-body">
-                <div class="arcade-meta">
-                  <span>Channel</span>
-                  <code>1553823431349371042</code>
-                </div>
+                <div class="arcade-meta"><span>Channel</span><code>1553823431349371042</code></div>
                 <div class="arcade-actions">
                   <button class="btn btn-primary" onclick="runArcade('loveprofessor','panel')">Post Panel</button>
                   <button class="btn btn-ghost" onclick="runArcade('loveprofessor','test')">Run Test</button>
                 </div>
-                <p class="arcade-hint muted">Discord: <code>/loveprofessor_panel</code> · <code>/loveprofessor_test</code></p>
               </div>
             </article>
-
-            <!-- Nazar Speaks -->
             <article class="arcade-card arcade-nazar">
               <div class="arcade-banner">
                 <img src="https://ik.imagekit.io/BassaniStudios/MadamNazar-GTAO-Livery.webp" alt="Nazar Speaks" />
                 <div class="arcade-banner-overlay">
                   <span class="arcade-tag">GTAO ARCADE</span>
                   <h4>Nazar Speaks</h4>
-                  <p>Madam Nazar fortunes</p>
                 </div>
               </div>
               <div class="arcade-body">
-                <div class="arcade-meta">
-                  <span>Channel</span>
-                  <code>1531417799300350073</code>
-                </div>
+                <div class="arcade-meta"><span>Channel</span><code>1531417799300350073</code></div>
                 <div class="arcade-actions">
                   <button class="btn btn-primary" onclick="runArcade('nazarspeaks','panel')">Post Panel</button>
                   <button class="btn btn-ghost" onclick="runArcade('nazarspeaks','test')">Run Test</button>
                 </div>
-                <p class="arcade-hint muted">Discord: <code>/nazarspeaks_panel</code> · <code>/nazarspeaks_test</code></p>
               </div>
             </article>
-
-            <!-- Cursed Horoscope -->
             <article class="arcade-card arcade-cursed">
-              <div class="arcade-banner">
-                <img src="https://ik.imagekit.io/BassaniStudios/madame%20boavry.gif" alt="Cursed Horoscope" />
-                <div class="arcade-banner-overlay">
-                  <span class="arcade-tag">HALLOWEEN</span>
-                  <h4>Cursed Horoscope</h4>
-                  <p>12 signs · cursed predictions</p>
-                </div>
-              </div>
               <div class="arcade-body">
-                <div class="arcade-meta">
-                  <span>Channel</span>
-                  <code>1554302868293554196</code>
-                </div>
+                <h4>Cursed Horoscope</h4>
+                <div class="arcade-meta"><span>Channel</span><code>1554302868293554196</code></div>
                 <div class="arcade-actions">
                   <button class="btn btn-primary" onclick="runArcade('cursedhoroscope','panel')">Post Panel</button>
                   <button class="btn btn-ghost" onclick="runArcade('cursedhoroscope','test')">Run Test</button>
                 </div>
-                <p class="arcade-hint muted">Discord: <code>/cursedhoroscope_panel</code> · <code>/cursedhoroscope_test</code></p>
               </div>
             </article>
           </div>
-
-          <div class="card" style="margin-top:1.25rem">
-            <div class="card-title">HOW IT WORKS</div>
-            <div class="feature-line"><span class="feature-icon">◆</span><div><strong>Post Panel</strong><small>Deletes the old sticky (if any) and posts a fresh interactive panel in that game’s channel.</small></div></div>
-            <div class="feature-line"><span class="feature-icon">⚡</span><div><strong>Run Test</strong><small>Posts a sample result in the same channel without changing the sticky panel.</small></div></div>
-            <div class="feature-line"><span class="feature-icon">🔒</span><div><strong>Staff only</strong><small>Uses the same panel API key + Discord staff role as the rest of Bova Core.</small></div></div>
-            <p id="arcade-status" class="muted" style="margin-top:0.75rem">Ready.</p>
-          </div>
+          <div id="arcade-status" class="muted" style="margin-top:1rem"></div>
         </section>
 
         <!-- TICKETS -->
         <section class="panel" id="panel-tickets">
-          <div class="page-intro"><div><div class="eyebrow">COMMUNITY</div><h3>Tickets</h3><p>Easy Ticket / Suggestions / Report panel — managed mainly via Discord slash commands.</p></div></div>
+          <div class="page-intro"><div><div class="eyebrow">COMMUNITY</div><h3>Tickets</h3><p>Ticket data from the API when available. Setup remains in Discord.</p></div></div>
           <div class="card">
-            <div class="feature-line"><span class="feature-icon">▣</span><div><strong>Ticket panel</strong><small><code>/ticket_panel</code> posts the interactive panel</small></div><span class="status-badge discord">Discord</span></div>
-            <div class="feature-line"><span class="feature-icon">⚙</span><div><strong>Setup channels</strong><small><code>/ticket_setup</code> sets panel &amp; log channels</small></div><span class="status-badge discord">Discord</span></div>
-            <div class="feature-line"><span class="feature-icon">📋</span><div><strong>Staff list</strong><small><code>/ticket_list</code> recent submissions</small></div><span class="status-badge discord">Staff</span></div>
-            <div class="card-title" style="margin-top:1rem">RECENT SUBMISSIONS (API)</div>
-            <div id="ticket-log" class="muted">Load to view…</div>
-            <div class="form-actions"><button class="btn btn-ghost" onclick="loadTicketLog()">↻ Load tickets</button></div>
+            <div id="ticket-log" class="muted">Loading…</div>
+            <div class="form-actions"><button class="btn btn-ghost" onclick="loadTicketLog()">↻ Refresh</button></div>
+            <p class="muted" style="margin-top:0.75rem">Discord: <code>/ticket_setup</code> · <code>/ticket_panel</code> · <code>/ticket_list</code></p>
           </div>
         </section>
 
-        <!-- POLLS -->
-        <section class="panel" id="panel-polls">
-          <div class="page-intro"><div><div class="eyebrow">COMMUNITY</div><h3>Polls</h3><p>Create Sesh-style live polls through the API.</p></div></div>
-          <div class="dashboard-grid">
-            <div class="card">
-              <div class="card-title">NEW POLL</div>
-              <label>Question</label>
-              <input id="poll-q" placeholder="What should we do next?" oninput="updatePollPreview()" />
-              <label>Channel</label>
-              <select id="poll-channel"></select>
-              <label>Options</label>
-              <div class="poll-options" id="poll-options"></div>
-              <div class="form-actions">
-                <button class="btn btn-ghost" onclick="addPollOption()">+ Option</button>
-                <button class="btn btn-primary" onclick="postPoll()">Post poll</button>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-title">PREVIEW</div>
-              <div id="poll-preview" class="preview-box">Poll preview…</div>
-              <p class="muted" style="margin-top:0.75rem">Also: <code>/poll</code> · <code>/poll_list</code> · <code>/poll_end</code></p>
-            </div>
+        <!-- NITRO (replaced polls) -->
+        <section class="panel" id="panel-nitro">
+          <div class="page-intro"><div><div class="eyebrow">COMMUNITY</div><h3>Nitro Raffles</h3><p>Polls were discontinued in the bot API. Nitro Raffles are managed in Discord (no web post API yet).</p></div></div>
+          <div class="card">
+            <div class="feature-line"><span class="feature-icon">✦</span><div><strong>Panel</strong><small><code>/nitroraffles_panel</code></small></div><span class="status-badge discord">Discord</span></div>
+            <div class="feature-line"><span class="feature-icon">✦</span><div><strong>Result</strong><small><code>/nitroraffles_result</code></small></div><span class="status-badge discord">Discord</span></div>
+            <div class="feature-line"><span class="feature-icon">✦</span><div><strong>Reset / cooldown / test</strong><small><code>/nitroraffles_reset</code> · <code>/nitroraffles_reset_cooldown</code> · <code>/nitroraffles_test</code></small></div><span class="status-badge discord">Discord</span></div>
+            <p class="muted" style="margin-top:1rem">Staff-only on most nitro commands (see slash policy).</p>
           </div>
         </section>
 
-        <!-- DM INBOX -->
+        <!-- DM -->
         <section class="panel" id="panel-dm">
-          <div class="page-intro"><div><div class="eyebrow">PRIVATE SUPPORT</div><h3>DM Inbox</h3><p>View and reply to users who messaged the bot privately.</p></div></div>
+          <div class="page-intro"><div><div class="eyebrow">PRIVATE SUPPORT</div><h3>DM Inbox</h3><p>Read bot DMs and reply as the bot.</p></div></div>
           <div class="dashboard-grid">
             <div class="card">
-              <div class="card-title">RECENT CONTACTS</div>
-              <div id="dm-inbox" class="dm-list muted">Loading…</div>
+              <div class="card-title">CONVERSATIONS</div>
+              <div id="dm-inbox" class="muted">Loading…</div>
               <div class="form-actions"><button class="btn btn-ghost" onclick="loadDmInbox()">↻ Refresh</button></div>
             </div>
             <div class="card">
               <div class="card-title">REPLY</div>
               <label>User ID</label>
-              <input id="dm-user-id" placeholder="Discord user snowflake" />
+              <input id="dm-user-id" placeholder="Discord snowflake" />
               <label>Message</label>
-              <textarea id="dm-reply-msg" placeholder="Your reply…"></textarea>
-              <div class="form-actions"><button class="btn btn-primary" onclick="sendDmReply()">Send reply</button></div>
-              <div class="card-title" style="margin-top:1.2rem">HISTORY</div>
-              <div id="dm-history" class="muted">Select a user or enter ID and load.</div>
-              <div class="form-actions"><button class="btn btn-ghost" onclick="loadDmHistory()">Load history</button></div>
-              <div class="card-title" style="margin-top:1.2rem">AUTO RESPONSE</div>
-              <div class="check-row"><input type="checkbox" id="dm-auto-on" /><label for="dm-auto-on" style="margin:0;text-transform:none;letter-spacing:0">Enable auto-acknowledgement</label></div>
-              <textarea id="dm-auto-msg" placeholder="Thanks for your message — staff will reply soon."></textarea>
-              <div class="form-actions"><button class="btn btn-ghost" onclick="saveDmAuto()">Save auto-response</button></div>
+              <textarea id="dm-reply-msg" placeholder="Reply as the bot…"></textarea>
+              <div class="form-actions">
+                <button class="btn btn-ghost" onclick="loadDmHistory()">Load history</button>
+                <button class="btn btn-primary" onclick="sendDmReply()">Send reply</button>
+              </div>
+              <div id="dm-history" style="margin-top:0.75rem"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">AUTO-RESPONSE</div>
+              <div class="check-row"><input type="checkbox" id="dm-auto-on" /><label for="dm-auto-on" style="margin:0;text-transform:none;letter-spacing:0">Enable auto acknowledgement</label></div>
+              <label>Auto text</label>
+              <textarea id="dm-auto-msg" placeholder="Thanks — staff will reply soon."></textarea>
+              <div class="form-actions"><button class="btn btn-primary" onclick="saveDmAuto()">Save auto-response</button></div>
             </div>
           </div>
         </section>
 
         <!-- STATS -->
         <section class="panel" id="panel-stats">
-          <div class="page-intro"><div><div class="eyebrow">ANALYTICS</div><h3>Stats</h3><p>Server activity summary from the bot database.</p></div></div>
+          <div class="page-intro"><div><div class="eyebrow">ANALYTICS</div><h3>Stats</h3><p>Joins, leaves and top message counters from the bot.</p></div></div>
           <div class="card">
             <div id="stats-out" class="muted">Loading stats…</div>
             <div class="form-actions"><button class="btn btn-ghost" onclick="loadStats()">↻ Refresh</button></div>
-            <p class="muted" style="margin-top:0.75rem">Discord: <code>/stats</code> · <code>/topmedia</code> · <code>/week_summary</code> · <code>/peak_hours</code> · <code>/chat_ranking</code> · <code>/media_ranking</code></p>
+            <p class="muted" style="margin-top:0.75rem">Discord: <code>/stats</code> · <code>/topmedia</code> · <code>/week_summary</code> · <code>/peak_hours</code></p>
           </div>
         </section>
 
         <!-- NAME HISTORY -->
         <section class="panel" id="panel-namehistory">
-          <div class="page-intro"><div><div class="eyebrow">ANALYTICS</div><h3>Name History</h3><p>Inspect or paste exported name-history JSON.</p></div></div>
+          <div class="page-intro"><div><div class="eyebrow">ANALYTICS</div><h3>Name History</h3><p>Live data from the API, or paste a JSON export.</p></div></div>
           <div class="card">
-            <label>Paste namehistory JSON export</label>
-            <textarea id="nh-json" rows="8" placeholder='{"members":{...}}'></textarea>
-            <div class="form-actions"><button class="btn btn-primary" onclick="renderNameHistory()">Render</button></div>
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="loadNameHistoryApi()">Load from API</button>
+            </div>
+            <label>Or paste namehistory JSON</label>
+            <textarea id="nh-json" rows="6" placeholder='{"members":{...}}'></textarea>
+            <div class="form-actions"><button class="btn btn-ghost" onclick="renderNameHistory()">Render paste</button></div>
             <div id="nh-out" style="margin-top:1rem"></div>
-            <p class="muted" style="margin-top:0.75rem">Discord: <code>/namehistory</code> · <code>/namehistory_export</code></p>
           </div>
         </section>
 
@@ -405,87 +411,61 @@
 
         <!-- COMMANDS -->
         <section class="panel" id="panel-commands">
-          <div class="page-intro"><div><div class="eyebrow">OVERVIEW</div><h3>Command Center</h3><p>Full slash-command catalog synced with bot <strong>v2.9.7</strong> (67 commands). Removed Auto-Role, Auto Feeds, welcome DMs and boost config.</p></div></div>
+          <div class="page-intro"><div><div class="eyebrow">OVERVIEW</div><h3>Command Center</h3><p>Slash catalog from the live bot (fallback list if API offline). Bot <strong>v2.12.0</strong> — polls removed; nitro + fenrir included.</p></div></div>
           <div class="command-toolbar">
-            <input id="command-search" placeholder="Search commands…" oninput="renderCommands()" />
-            <select id="command-filter" onchange="renderCommands()">
-              <option value="all">All categories</option>
-              <option value="automation">Automation</option>
-              <option value="community">Community</option>
-              <option value="moderation">Moderation</option>
-              <option value="utility">Utility</option>
-              <option value="analytics">Analytics</option>
-              <option value="staff">Staff / Audit</option>
-              <option value="system">System</option>
-              <option value="arcade">Arcade</option>
-              <option value="support">Support</option>
-            </select>
+            <input id="cmd-search" placeholder="Search commands…" oninput="loadCommands()" />
           </div>
           <div class="card">
-            <div class="card-title"><span id="command-count">0 commands</span></div>
-            <div id="command-list" class="command-list"></div>
-          </div>
-          <div class="info-grid">
-            <div class="info-callout">
-              <strong>Panel coverage</strong>
-              <p>Web controls cover timestamp reminders, DM inbox, embeds, meets and polls. Staff audit tools and arcade panels run in Discord.</p>
-            </div>
-            <div class="info-callout">
-              <strong>Removed from bot</strong>
-              <p>Auto-Role, Auto Feeds, <code>/boost_config</code>, welcome DM commands, <code>/bovasay</code> and <code>/member_time</code> are no longer available.</p>
-            </div>
+            <div id="cmd-list" class="command-list muted">Loading…</div>
           </div>
         </section>
 
         <!-- WEBLOGS -->
         <section class="panel" id="panel-weblogs">
-          <div class="page-intro"><div><div class="eyebrow">LOGGING</div><h3>WebLogs</h3><p>Enable or disable server logging categories with the Discord command.</p></div></div>
+          <div class="page-intro"><div><div class="eyebrow">LOGGING</div><h3>WebLogs</h3><p>Configure logging in Discord. Use Diagnostics for API health and audit.</p></div></div>
           <div class="card">
-            <div class="feature-line"><span class="feature-icon">≡</span><div><strong>WebLogs configuration</strong><small><code>/weblogs_config</code> controls joins, leaves, message edits/deletes and channel events.</small></div><span class="status-badge discord">Discord</span></div>
+            <div class="feature-line"><span class="feature-icon">≡</span><div><strong>WebLogs config</strong><small><code>/weblogs_config</code></small></div><span class="status-badge discord">Discord</span></div>
             <div class="feature-line"><span class="feature-icon">✉</span><div><strong>Message log test</strong><small><code>/msglog_test</code></small></div><span class="status-badge discord">Discord</span></div>
             <div class="feature-line"><span class="feature-icon">👤</span><div><strong>Member log test</strong><small><code>/memberlog_test</code></small></div><span class="status-badge discord">Discord</span></div>
+            <div class="feature-line"><span class="feature-icon">⌁</span><div><strong>Log health</strong><small><code>/log_health</code> — channel permissions</small></div><span class="status-badge discord">Discord</span></div>
           </div>
         </section>
 
         <!-- AUDIT -->
         <section class="panel" id="panel-audit">
-          <div class="page-intro"><div><div class="eyebrow">SYSTEM</div><h3>Audit &amp; Health</h3><p>Database size, backup status and API health.</p></div></div>
-          <div class="card" id="audit-db"><div class="muted">Loading audit…</div></div>
-          <div class="card" style="margin-top:1rem">
-            <div class="card-title">STAFF AUDIT COMMANDS (DISCORD)</div>
-            <div class="feature-line"><span class="feature-icon">🔍</span><div><strong>/investigate</strong><small>Staff investigation panel for a member</small></div></div>
-            <div class="feature-line"><span class="feature-icon">📊</span><div><strong>/member_activity · /msg_stats</strong><small>Activity and message stats</small></div></div>
-            <div class="feature-line"><span class="feature-icon">🛡</span><div><strong>/permission_audit · /role_diff</strong><small>Permission &amp; role change audit</small></div></div>
-            <div class="feature-line"><span class="feature-icon">📸</span><div><strong>/guild_snapshot · /log_health</strong><small>Snapshots and log channel health</small></div></div>
-            <div class="feature-line"><span class="feature-icon">⚠</span><div><strong>/mass_action_alert · /who_deleted · /automod_activity</strong><small>Alerts and forensics</small></div></div>
+          <div class="page-intro"><div><div class="eyebrow">SYSTEM</div><h3>Audit &amp; Health</h3><p>Database / backup overview and recent staff audit actions.</p></div></div>
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-title">STORAGE &amp; BACKUP</div>
+              <div id="audit-db" class="muted">Loading…</div>
+              <div class="form-actions"><button class="btn btn-ghost" onclick="refreshAudit()">↻ Refresh</button></div>
+            </div>
+            <div class="card">
+              <div class="card-title">AUDIT LOG</div>
+              <div id="audit-log" class="muted">Loading…</div>
+            </div>
           </div>
         </section>
 
         <!-- TUTORIAL -->
         <section class="panel" id="panel-tutorial">
-          <div class="page-intro"><div><div class="eyebrow">GUIDE</div><h3>Help &amp; Guide</h3><p>Quick reference for the control center and Discord commands.</p></div></div>
-          <div class="guide-grid">
-            <div class="card">
-              <div class="card-title">START HERE</div>
-              <h4>1. Authenticate</h4>
-              <p class="muted">Use your Discord user ID and the private panel key. The key is not embedded in this website.</p>
-              <h4 style="margin-top:0.8rem">2. Configure</h4>
-              <p class="muted">Use web controls for timestamp, meets, embeds, polls and DM inbox. Use Discord slash commands for deeper admin tools.</p>
-              <h4 style="margin-top:0.8rem">3. Verify</h4>
-              <p class="muted">Dashboard, Server and Audit confirm the bot and database are healthy.</p>
+          <div class="page-intro"><div><div class="eyebrow">GUIDE</div><h3>Help &amp; Guide</h3></div></div>
+          <div class="info-grid">
+            <div class="info-callout">
+              <strong>Auth</strong>
+              <p>Use your Discord user ID + <code>PANEL_ACCESS_KEY</code> from Render. Staff role required on the main guild.</p>
             </div>
-            <div class="card">
-              <div class="card-title">TIMESTAMP EXAMPLE</div>
-              <pre>&lt;t:1789226111:R&gt;</pre>
-              <p class="muted">When a future relative timestamp appears in an announcement, the reminder engine schedules its notice automatically (±45s).</p>
+            <div class="info-callout">
+              <strong>Bot silent?</strong>
+              <p>Open <strong>Diagnostics</strong> → Health check. Keep UptimeRobot on <code>/health</code> every 5 min so Render Free does not sleep.</p>
             </div>
-            <div class="card">
-              <div class="card-title">ARCADE</div>
-              <p class="muted"><code>/nazarspeaks_panel</code> · <code>/loveprofessor_panel</code> post permanent arcade panels. Test with <code>/nazarspeaks_test</code> and <code>/loveprofessor_test</code>.</p>
+            <div class="info-callout">
+              <strong>API base</strong>
+              <p>Configured in <code>js/config.js</code> as <code>BOVA_API.baseUrl</code> → currently the Render service URL.</p>
             </div>
-            <div class="card">
-              <div class="card-title">REMOVED FEATURES</div>
-              <p class="muted">Auto-Role, Auto Feeds, welcome DM automation and <code>/boost_config</code> were removed in v2.9.x. Boost thank-you listener still works from <code>boost.json</code>.</p>
+            <div class="info-callout">
+              <strong>Removed</strong>
+              <p>Polls web UI and <code>/api/poll</code>. Use Nitro Raffles in Discord instead.</p>
             </div>
           </div>
         </section>
@@ -494,8 +474,7 @@
     </div>
   </div>
 
-  <div class="toast-wrap" id="toasts"></div>
-
+  <div id="toasts" class="toasts"></div>
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
 </body>

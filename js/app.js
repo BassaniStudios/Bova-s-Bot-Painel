@@ -1,4 +1,4 @@
-/* Bova Core Control Center · v2.9.7 · Neon Edition */
+/* Bova Core Control Center · v2.12.0 · Neon Edition — synced with bot API */
 const C = () => window.BOVA_CONFIG || { roles: [], channels: [], hosts: [], servers: [], emojis: [] };
 const TZ_LIST = [
   { id: "America/Sao_Paulo", label: "São Paulo (UTC-3)", offset: -3 },
@@ -14,11 +14,12 @@ const TITLES = {
   dashboard: ["OVERVIEW", "Dashboard"],
   server: ["OVERVIEW", "Server"],
   commands: ["OVERVIEW", "Command Center"],
+  diagnostics: ["SYSTEM", "Diagnostics"],
   timestamp: ["AUTOMATION", "Timestamp Reminders"],
   meets: ["ANNOUNCEMENTS", "Meets"],
   arcade: ["AUTOMATION", "Arcade"],
   tickets: ["COMMUNITY", "Tickets"],
-  polls: ["COMMUNITY", "Polls"],
+  nitro: ["COMMUNITY", "Nitro Raffles"],
   dm: ["PRIVATE SUPPORT", "DM Inbox"],
   namehistory: ["ANALYTICS", "Name History"],
   embed: ["TOOLS", "Embed Builder"],
@@ -28,19 +29,22 @@ const TITLES = {
   tutorial: ["GUIDE", "Help & Guide"],
 };
 
-/* Command catalog synced with bot v2.9.7 — removed autofeed, autorole, boost_config, welcome_*, bovasay, member_time */
+/* Command catalog synced with bot v2.12.0 — polls discontinued; nitroraffles + fenrir added */
 const COMMAND_META = {
   automation: ["timestamp_reminder_config", "timestamp_reminder_status"],
   community: [
     "birthday_announce_channel", "birthday_panel", "invitepanel", "meet",
-    "poll", "poll_end", "poll_list", "sticky_clear", "sticky_set",
+    "sticky_clear", "sticky_set",
     "ticket_list", "ticket_panel", "ticket_setup",
     "dm_inbox", "dm_history", "dm_reply", "dm_auto_response",
+    "nitroraffles", "nitroraffles_panel", "nitroraffles_result",
+    "nitroraffles_reset", "nitroraffles_reset_cooldown", "nitroraffles_test",
   ],
   moderation: ["delete", "purge"],
   utility: [
     "avatar", "help", "info", "membercount", "servericon", "serverinfo",
     "timestamp", "userinfo", "say", "panel", "commands_panel", "ping", "bova",
+    "fenrir",
   ],
   analytics: [
     "namehistory", "namehistory_export", "stats", "topmedia", "week_summary",
@@ -52,100 +56,122 @@ const COMMAND_META = {
     "who_deleted",
   ],
   system: [
-    "backup_export", "backup_hint", "backup_now", "db_status",
-    "weblogs_config", "msglog_test", "memberlog_test",
+    "backup_export", "backup_hint", "backup_now", "backup_restore", "db_status",
+    "weblogs_config", "msglog_test", "memberlog_test", "sync_commands",
   ],
-  arcade: ["loveprofessor_panel", "loveprofessor_test", "nazarspeaks_panel", "nazarspeaks_test", "cursedhoroscope_panel", "cursedhoroscope_test", "cursedhoroscope_panel", "cursedhoroscope_test"],
+  arcade: [
+    "loveprofessor_panel", "loveprofessor_test",
+    "nazarspeaks_panel", "nazarspeaks_test",
+    "cursedhoroscope_panel", "cursedhoroscope_test",
+  ],
   support: ["cmd_add", "cmd_list", "cmd_remove", "run"],
 };
 
 const FALLBACK_COMMANDS = [
-  ["automod_activity", "List recent Discord AutoMod actions for this channel"],
+  ["automod_activity", "List recent Discord AutoMod actions"],
   ["avatar", "Show user avatar"],
-  ["backup_export", "[STAFF] Export data from SQLite to Discord"],
+  ["backup_export", "[STAFF] Export data from SQLite/Turso"],
   ["backup_hint", "How auto-backup works on Render free"],
-  ["backup_now", "[STAFF] Force an immediate SQLite backup"],
+  ["backup_now", "[STAFF] Force an immediate backup"],
+  ["backup_restore", "[STAFF] Restore from backup"],
   ["birthday_announce_channel", "Channel for daily birthday announcements"],
-  ["birthday_panel", "Post the easy birthday panel (buttons only)"],
+  ["birthday_panel", "Post the birthday panel (buttons only)"],
   ["bova", "[STAFF] Post the official Bova's Bot GIF"],
-  ["chat_ranking", "Top 10 chat and minigame activity in the configured rooms"],
+  ["chat_ranking", "Top 10 by words in chat ranking channels"],
   ["cmd_add", "Create a custom command (tag)"],
   ["cmd_list", "List custom commands"],
   ["cmd_remove", "Remove a custom command"],
   ["commands_panel", "Post the detailed Bova command hub"],
-  ["db_status", "[STAFF] SQLite storage status"],
+  ["cursedhoroscope_panel", "[ADMIN] Post Cursed Horoscope panel"],
+  ["cursedhoroscope_test", "[ADMIN] Test Cursed Horoscope"],
+  ["db_status", "[STAFF] Storage status (SQLite/Turso)"],
   ["delete", "Delete a message by ID anonymously"],
   ["dm_auto_response", "[STAFF] Configure automatic DM acknowledgement"],
   ["dm_history", "[STAFF] View recent DM history with a user"],
   ["dm_inbox", "[STAFF] Show recent users who contacted the bot by DM"],
   ["dm_reply", "[STAFF] Reply to a user by DM through the bot"],
-  ["guild_snapshot", "Create a server snapshot and compare it with the previous one"],
-  ["help", "Bova's Bot cyberpunk control panel"],
+  ["fenrir", "FiveMHosts — Fenrir status tools"],
+  ["guild_snapshot", "Create a server snapshot and compare"],
+  ["help", "Bova's Bot control panel"],
   ["info", "Bot, server and user information"],
-  ["investigate", "Open a staff investigation panel for a member"],
+  ["investigate", "Staff investigation panel for a member"],
   ["invitepanel", "Send the official invite request panel"],
-  ["log_health", "Check log channels and required bot permissions"],
-  ["loveprofessor_panel", "[ADMIN] Post the permanent The Love Professor arcade panel"],
-  ["loveprofessor_test", "[ADMIN] Test the love machine — the bot plays with you"],
-  ["mass_action_alert", "Show recent automatic mass-action alerts"],
-  ["media_ranking", "Top 10 members sending photos and videos in the media category"],
+  ["log_health", "Check log channels and bot permissions"],
+  ["loveprofessor_panel", "[ADMIN] Post The Love Professor panel"],
+  ["loveprofessor_test", "[ADMIN] Test the love machine"],
+  ["mass_action_alert", "Show recent mass-action alerts"],
+  ["media_ranking", "Top 10 media posters"],
   ["meet", "Post a car meet announcement embed"],
-  ["member_activity", "Show recent activity recorded for a selected member"],
-  ["member_invites", "List invites created by a selected member"],
+  ["member_activity", "Recent activity for a member"],
+  ["member_invites", "Invites created by a member"],
   ["membercount", "Server member count"],
-  ["memberlog_test", "Send sample join/leave/kick/ban embeds"],
-  ["msg_stats", "Show detailed tracked message statistics for a member"],
-  ["msglog_test", "Test the dedicated message-log channel"],
-  ["namehistory", "Show name history for a member"],
-  ["namehistory_export", "Export name history JSON (staff)"],
-  ["nazarspeaks_panel", "[ADMIN] Post the permanent Nazar Speaks arcade panel"],
-  ["nazarspeaks_test", "[ADMIN] Test Nazar Speaks — works in any channel"],
-  ["panel", "[STAFF] Get the web panel link (role-restricted)"],
-  ["peak_hours", "Show periods with the highest unique-user engagement"],
-  ["permission_audit", "Scan roles and channels for dangerous permissions"],
+  ["memberlog_test", "Sample join/leave/kick/ban embeds"],
+  ["msg_stats", "Tracked message statistics for a member"],
+  ["msglog_test", "Test message delete/edit log"],
+  ["namehistory", "Name history for a member"],
+  ["namehistory_export", "Export name history"],
+  ["nazarspeaks_panel", "[ADMIN] Post Nazar Speaks panel"],
+  ["nazarspeaks_test", "[ADMIN] Test Nazar Speaks"],
+  ["nitroraffles", "Nitro raffles system"],
+  ["nitroraffles_panel", "Post nitro raffles panel"],
+  ["nitroraffles_result", "Post raffle result"],
+  ["nitroraffles_reset", "Reset raffle state"],
+  ["nitroraffles_reset_cooldown", "Reset raffle cooldown"],
+  ["nitroraffles_test", "Test nitro raffles"],
+  ["panel", "Link to this web control center"],
+  ["peak_hours", "Highest unique-user engagement periods"],
+  ["permission_audit", "Permission audit tools"],
   ["ping", "Show bot latency"],
-  ["poll", "Create a poll (Sesh-style live results)"],
-  ["poll_end", "Force-end a poll by ID"],
-  ["poll_list", "List active polls"],
-  ["purge", "Delete a number of messages in the current channel"],
-  ["role_diff", "Show role changes for a member and who made the change"],
-  ["run", "Run a custom command / tag"],
-  ["say", "[STAFF] Make the bot say something"],
-  ["servericon", "Show server icon"],
+  ["purge", "Purge 1–100 messages"],
+  ["role_diff", "Role change comparison"],
+  ["say", "[STAFF] Send a message as the bot"],
+  ["servericon", "Server icon"],
   ["serverinfo", "Server information"],
-  ["stats", "Show server activity statistics (numbers + charts)"],
-  ["sticky_clear", "Remove sticky from this channel"],
-  ["sticky_set", "Set a sticky message for this channel"],
-  ["ticket_list", "[STAFF] List recent submissions"],
-  ["ticket_panel", "Post the easy Ticket / Suggestions / Report panel"],
-  ["ticket_setup", "Set panel/log channels for easy tickets"],
+  ["stats", "Server stats summary"],
+  ["sticky_clear", "Clear sticky message"],
+  ["sticky_set", "Set sticky message"],
+  ["sync_commands", "[STAFF] Force slash command re-sync"],
+  ["ticket_list", "List open tickets"],
+  ["ticket_panel", "Post ticket panel"],
+  ["ticket_setup", "Configure tickets"],
   ["timestamp", "Generate a Discord timestamp"],
-  ["timestamp_reminder_config", "Configure automatic timestamp reminders"],
-  ["timestamp_reminder_status", "Show automatic timestamp reminder status"],
-  ["topmedia", "Show or post the most reacted media of the period"],
-  ["userinfo", "Detailed user info"],
-  ["weblogs_config", "Configure WebLogs compatibility settings"],
-  ["week_summary", "Activity snapshot for the tracked period"],
-  ["who_deleted", "Best-effort audit-log lookup for who deleted a message"],
-].map((x) => ({ name: x[0], description: x[1] }));
+  ["timestamp_reminder_config", "Configure timestamp reminders"],
+  ["timestamp_reminder_status", "Reminder engine status"],
+  ["topmedia", "Top media contributors"],
+  ["userinfo", "User information"],
+  ["week_summary", "Weekly activity summary"],
+  ["weblogs_config", "Configure WebLogs toggles"],
+  ["who_deleted", "Audit-log lookup for message deletion"],
+];
 
-let commandData = FALLBACK_COMMANDS;
-let selectedHosts = new Set();
-
-/* ===== AUTH / STORAGE ===== */
-function getAccessKey() { return sessionStorage.getItem("bova_key") || ""; }
-function setAccessKey(k) { sessionStorage.setItem("bova_key", k); }
-function getDiscordUserId() { return localStorage.getItem("bova_uid") || ""; }
-function setDiscordUserId(id) { localStorage.setItem("bova_uid", id); }
-function getApiBase() {
+/* ===== SESSION ===== */
+function getAccessKey() {
+  return sessionStorage.getItem("bova_panel_key") || "";
+}
+function setAccessKey(k) {
+  sessionStorage.setItem("bova_panel_key", k);
+}
+function getDiscordUserId() {
+  return sessionStorage.getItem("bova_discord_uid") || "";
+}
+function setDiscordUserId(id) {
+  sessionStorage.setItem("bova_discord_uid", id);
+}
+function apiBase() {
   const u = (window.BOVA_API && window.BOVA_API.baseUrl) || "";
-  return u.replace(/\/$/, "");
+  return String(u).replace(/\/+$/, "");
 }
 
-/* ===== API ===== */
-async function apiFetch(path, opts = {}) {
-  const base = getApiBase();
-  if (!base) throw new Error("API base URL not configured in js/config.js");
+/* Abortable fetch — cancels previous request for same key */
+const _inflight = new Map();
+async function apiFetch(path, opts = {}, key) {
+  const base = apiBase();
+  if (!base) throw new Error("BOVA_API.baseUrl not set in config.js");
+  if (key && _inflight.has(key)) {
+    try { _inflight.get(key).abort(); } catch (_) {}
+  }
+  const ctrl = new AbortController();
+  if (key) _inflight.set(key, ctrl);
   const headers = Object.assign(
     {
       "Content-Type": "application/json",
@@ -154,18 +180,37 @@ async function apiFetch(path, opts = {}) {
     },
     opts.headers || {}
   );
-  const res = await fetch(base + path, { ...opts, headers });
+  try {
+    const res = await fetch(base + path, { ...opts, headers, signal: ctrl.signal });
+    let data = null;
+    try { data = await res.json(); } catch (_) {}
+    if (!res.ok) {
+      const msg = (data && (data.error || data.message || data.detail)) || `HTTP ${res.status}`;
+      throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+    }
+    return data;
+  } finally {
+    if (key && _inflight.get(key) === ctrl) _inflight.delete(key);
+  }
+}
+async function apiGet(path, key) {
+  return apiFetch(path, {}, key || path);
+}
+async function apiPost(path, body, key) {
+  return apiFetch(path, { method: "POST", body: JSON.stringify(body || {}) }, key || path);
+}
+
+/* Public health (no auth) — for diagnostics */
+async function fetchHealth() {
+  const base = apiBase();
+  if (!base) throw new Error("BOVA_API.baseUrl not set");
+  const t0 = performance.now();
+  const res = await fetch(base + "/health", { method: "GET" });
+  const ms = Math.round(performance.now() - t0);
   let data = null;
   try { data = await res.json(); } catch (_) {}
-  if (!res.ok) {
-    const msg = (data && (data.error || data.message)) || `HTTP ${res.status}`;
-    throw new Error(msg);
-  }
-  return data;
-}
-async function apiGet(path) { return apiFetch(path); }
-async function apiPost(path, body) {
-  return apiFetch(path, { method: "POST", body: JSON.stringify(body || {}) });
+  if (!res.ok) throw new Error((data && data.error) || `HTTP ${res.status}`);
+  return { ...data, _latency_ms: ms };
 }
 
 /* ===== UI HELPERS ===== */
@@ -183,7 +228,7 @@ function toast(msg, type) {
   el.className = "toast" + (type === "error" ? " error" : "");
   el.textContent = msg;
   wrap.appendChild(el);
-  setTimeout(() => el.remove(), 3500);
+  setTimeout(() => el.remove(), 3800);
 }
 function formatBytes(n) {
   n = Number(n) || 0;
@@ -194,6 +239,14 @@ function formatBytes(n) {
 function formatDate(v) {
   if (!v) return "—";
   try { return new Date(v).toLocaleString(); } catch (_) { return String(v); }
+}
+function formatUptime(sec) {
+  sec = Number(sec) || 0;
+  if (sec < 60) return sec + "s";
+  if (sec < 3600) return Math.floor(sec / 60) + "m " + (sec % 60) + "s";
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  return h + "h " + m + "m";
 }
 function fillSelect(el, items, optional) {
   if (!el) return;
@@ -210,6 +263,10 @@ function fillTz(el, defOffset) {
 }
 function copyText(t) {
   navigator.clipboard.writeText(t).then(() => toast("Copied")).catch(() => toast("Copy failed", "error"));
+}
+function setText(id, v) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = v;
 }
 
 /* ===== GATE ===== */
@@ -230,12 +287,10 @@ function tryUnlock() {
   document.getElementById("gate").style.display = "none";
   document.getElementById("app").style.display = "";
   initAll();
-  /* optional auth check */
   apiGet("/api/auth/check").then(() => toast("Authenticated")).catch((e) => {
     toast("Auth check: " + e.message, "error");
   });
 }
-
 
 /* ===== ARCADE ===== */
 async function runArcade(game, action) {
@@ -267,10 +322,8 @@ function switchTab(name) {
   document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
   document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === `panel-${name}`));
   const t = TITLES[name] || ["BOVA CORE", name];
-  const crumb = document.getElementById("crumb");
-  const title = document.getElementById("page-title");
-  if (crumb) crumb.textContent = `${t[0]} / ${t[1].toUpperCase()}`;
-  if (title) title.textContent = t[1];
+  setText("crumb", `${t[0]} / ${t[1].toUpperCase()}`);
+  setText("page-title", t[1]);
   document.getElementById("sidebar")?.classList.remove("open");
   if (name === "dashboard") loadOverview();
   if (name === "server") loadServerSummary();
@@ -280,6 +333,8 @@ function switchTab(name) {
   if (name === "tickets") loadTicketLog();
   if (name === "audit") refreshAudit();
   if (name === "commands") loadCommands();
+  if (name === "diagnostics") loadDiagnostics();
+  if (name === "namehistory") loadNameHistoryApi();
 }
 function toggleSidebar() {
   document.getElementById("sidebar")?.classList.toggle("open");
@@ -288,135 +343,231 @@ function refreshCurrent() {
   const active = document.querySelector(".tab-btn.active");
   if (active) switchTab(active.dataset.tab);
   else loadOverview();
-  toast("Refreshed");
 }
 
 /* ===== COMMANDS ===== */
-function commandCategory(name) {
-  for (const [cat, names] of Object.entries(COMMAND_META)) {
-    if (names.includes(name)) return cat;
-  }
-  return "utility";
-}
-function isStaffCommand(name) {
-  return [
-    "backup_export", "backup_now", "cmd_add", "cmd_remove", "delete",
-    "dm_auto_response", "dm_history", "dm_inbox", "dm_reply", "panel",
-    "purge", "say", "ticket_list", "ticket_setup", "namehistory_export",
-    "weblogs_config", "timestamp_reminder_config", "bova", "investigate",
-    "permission_audit", "guild_snapshot", "mass_action_alert", "who_deleted",
-    "loveprofessor_panel", "loveprofessor_test", "nazarspeaks_panel", "nazarspeaks_test", "cursedhoroscope_panel", "cursedhoroscope_test",
-    "db_status", "log_health", "memberlog_test", "msglog_test",
-  ].includes(name);
-}
 async function loadCommands() {
+  const el = document.getElementById("cmd-list");
+  if (!el) return;
+  let rows = FALLBACK_COMMANDS.map(([name, description]) => ({ name, description }));
   try {
     const d = await apiGet("/api/commands");
-    if (Array.isArray(d.commands) && d.commands.length) commandData = d.commands;
-  } catch (_) {}
-  renderCommands();
-  const m = document.getElementById("m-commands");
-  if (m) m.textContent = String(commandData.length);
-}
-function renderCommands() {
-  const list = document.getElementById("command-list");
-  if (!list) return;
-  const q = (document.getElementById("command-search")?.value || "").toLowerCase();
-  const filter = document.getElementById("command-filter")?.value || "all";
-  const rows = commandData.filter(
-    (c) =>
-      (!q || `${c.name} ${c.description}`.toLowerCase().includes(q)) &&
-      (filter === "all" || commandCategory(c.name) === filter)
-  );
-  const cnt = document.getElementById("command-count");
-  if (cnt) cnt.textContent = `${commandData.length} commands · showing ${rows.length}`;
-  list.innerHTML =
-    rows
-      .map(
-        (c) =>
-          `<div class="command-card"><div class="cmd-top"><code>/${esc(c.name)}</code><span class="tag">${esc(commandCategory(c.name))}</span>${isStaffCommand(c.name) ? '<span class="tag staff">staff</span>' : ""}</div><p>${esc(c.description || "")}</p></div>`
-      )
-      .join("") || '<div class="muted">No commands match your search.</div>';
+    if (d.commands && d.commands.length) rows = d.commands;
+    setText("m-commands", String(d.count || rows.length));
+  } catch (_) { /* use fallback */ }
+  const q = (document.getElementById("cmd-search")?.value || "").toLowerCase().trim();
+  const filtered = q
+    ? rows.filter((c) => c.name.includes(q) || (c.description || "").toLowerCase().includes(q))
+    : rows;
+  el.innerHTML = filtered
+    .map((c) => {
+      let cat = "other";
+      for (const [k, list] of Object.entries(COMMAND_META)) {
+        if (list.includes(c.name)) { cat = k; break; }
+      }
+      return `<div class="cmd-row"><code>/${esc(c.name)}</code><span class="cmd-cat">${esc(cat)}</span><span class="muted">${esc(c.description || "")}</span></div>`;
+    })
+    .join("") || '<div class="muted">No commands match.</div>';
 }
 
-/* ===== OVERVIEW / SERVER / AUDIT ===== */
+/* ===== OVERVIEW / DASHBOARD ===== */
 async function loadOverview() {
+  const t0 = performance.now();
   try {
-    const t0 = performance.now();
     const d = await apiGet("/api/overview");
     const ms = Math.round(performance.now() - t0);
-    const mLat = document.getElementById("m-latency");
-    const mGuild = document.getElementById("m-guild");
-    const mDb = document.getElementById("m-db");
-    if (mLat) mLat.textContent = ms + " ms";
-    if (mGuild) mGuild.textContent = d.guild?.name ? "Online" : "—";
-    if (mDb) mDb.textContent = formatBytes(d.database?.size_bytes || 0);
+    setText("m-latency", ms + " ms");
+    setText("m-guild", d.bot_ready ? "Online" : "Starting");
+    setText("m-commands", String(d.command_count ?? "—"));
+    const dbLabel = d.database?.mode === "turso" ? "Turso" : formatBytes(d.database?.size_bytes || 0);
+    setText("m-db", dbLabel);
+
     const st = document.getElementById("dash-status");
     if (st) {
       st.innerHTML = `
-        <div class="health-row"><span>Guild</span><span>${esc(d.guild?.name || "—")}</span></div>
-        <div class="health-row"><span>Members</span><span>${esc(d.guild?.member_count ?? "—")}</span></div>
-        <div class="health-row"><span>DB size</span><span>${formatBytes(d.database?.size_bytes || 0)}</span></div>
+        <div class="health-row"><span>Bot ready</span><span>${d.bot_ready ? "Yes ✓" : "No"}</span></div>
+        <div class="health-row"><span>Uptime</span><span>${esc(formatUptime(d.uptime_seconds))}</span></div>
+        <div class="health-row"><span>Slash commands</span><span>${esc(d.command_count ?? "—")}</span></div>
+        <div class="health-row"><span>DB mode</span><span>${esc(d.database?.mode || "—")}</span></div>
+        <div class="health-row"><span>KV docs</span><span>${esc(d.database?.kv_documents ?? "—")}</span></div>
         <div class="health-row"><span>Audit rows</span><span>${esc(d.database?.audit_rows ?? "—")}</span></div>
+        <div class="health-row"><span>DM users</span><span>${esc(d.dm_inbox?.users ?? "—")}</span></div>
+        <div class="health-row"><span>Timestamp reminders</span><span>${d.timestamp_reminder?.enabled ? "On · " + (d.timestamp_reminder.minutes || "?") + " min" : "Off"}</span></div>
         <div class="health-row"><span>Last auto backup</span><span>${esc(formatDate(d.backup?.last_auto))}</span></div>`;
     }
   } catch (e) {
     const st = document.getElementById("dash-status");
     if (st) st.textContent = e.message;
+    setText("m-latency", "err");
+    setText("m-guild", "—");
   }
 }
+
 async function loadServerSummary() {
   const el = document.getElementById("server-out");
   if (!el) return;
   try {
     const d = await apiGet("/api/server/summary");
+    if (d.error) throw new Error(d.error);
+    const channels = (d.text_channels ?? 0) + (d.voice_channels ?? 0);
+    const rolesCount = d.roles_count ?? (Array.isArray(d.roles) ? d.roles.length : "—");
     el.innerHTML = `
       <div class="server-kpis">
         <div class="server-kpi"><strong>${esc(d.member_count ?? "—")}</strong><small>members</small></div>
         <div class="server-kpi"><strong>${esc(d.humans ?? "—")}</strong><small>humans</small></div>
         <div class="server-kpi"><strong>${esc(d.bots ?? "—")}</strong><small>bots</small></div>
-        <div class="server-kpi"><strong>${esc(d.channels ?? "—")}</strong><small>channels</small></div>
-        <div class="server-kpi"><strong>${esc(d.roles ?? "—")}</strong><small>roles</small></div>
+        <div class="server-kpi"><strong>${esc(channels)}</strong><small>channels</small></div>
+        <div class="server-kpi"><strong>${esc(rolesCount)}</strong><small>roles</small></div>
         <div class="server-kpi"><strong>L${esc(d.boost_tier ?? "0")}</strong><small>${esc(d.boosts ?? 0)} boosts</small></div>
       </div>
       <strong>${esc(d.name || "Server")}</strong>
-      <div class="muted">ID ${esc(d.id || "")}</div>`;
+      <div class="muted">ID ${esc(d.id || "")}</div>
+      ${Array.isArray(d.roles) && d.roles.length ? `<div class="muted" style="margin-top:0.75rem">Top roles: ${d.roles.slice(0, 8).map((r) => esc(r.name) + " (" + r.members + ")").join(" · ")}</div>` : ""}`;
   } catch (e) {
     el.textContent = e.message;
   }
 }
+
 async function refreshAudit() {
   try {
-    const d = await apiGet("/api/overview");
+    const [ov, audit] = await Promise.all([
+      apiGet("/api/overview"),
+      apiGet("/api/audit").catch(() => ({ entries: [] })),
+    ]);
     const el = document.getElementById("audit-db");
-    if (!el) return;
-    el.innerHTML = `
-      <div class="server-kpis">
-        <div class="server-kpi"><strong>${formatBytes(d.database?.size_bytes || 0)}</strong><small>DB size</small></div>
-        <div class="server-kpi"><strong>${esc(d.database?.kv_documents ?? 0)}</strong><small>KV docs</small></div>
-        <div class="server-kpi"><strong>${esc(d.database?.audit_rows ?? 0)}</strong><small>audit rows</small></div>
-        <div class="server-kpi"><strong>${esc(d.backup?.interval_hours || 24)}h</strong><small>backup interval</small></div>
-      </div>
-      <div class="health-row"><span>Last automatic backup</span><span>${esc(formatDate(d.backup?.last_auto))}</span></div>
-      <div class="health-row"><span>Backup channel</span><span>${esc(d.backup?.channel_id || "—")}</span></div>`;
+    if (el) {
+      el.innerHTML = `
+        <div class="server-kpis">
+          <div class="server-kpi"><strong>${esc(ov.database?.mode || "—")}</strong><small>mode</small></div>
+          <div class="server-kpi"><strong>${esc(ov.database?.kv_documents ?? 0)}</strong><small>KV docs</small></div>
+          <div class="server-kpi"><strong>${esc(ov.database?.audit_rows ?? 0)}</strong><small>audit rows</small></div>
+          <div class="server-kpi"><strong>${esc(ov.backup?.interval_hours || 24)}h</strong><small>backup interval</small></div>
+        </div>
+        <div class="health-row"><span>Last automatic backup</span><span>${esc(formatDate(ov.backup?.last_auto))}</span></div>
+        <div class="health-row"><span>Backup channel</span><span>${esc(ov.backup?.channel_id || "—")}</span></div>
+        <div class="health-row"><span>Bot ready</span><span>${ov.bot_ready ? "Yes" : "No"}</span></div>
+        <div class="health-row"><span>Uptime</span><span>${esc(formatUptime(ov.uptime_seconds))}</span></div>`;
+    }
+    const log = document.getElementById("audit-log");
+    if (log) {
+      const entries = audit.entries || [];
+      if (!entries.length) {
+        log.innerHTML = '<div class="muted">No audit entries yet.</div>';
+      } else {
+        log.innerHTML = entries.slice(0, 40).map((e) =>
+          `<div class="archive-card"><strong>${esc(e.action || "?")}</strong>
+            <span class="muted">${esc(formatDate(e.ts))} · actor ${esc(e.actor_id || "—")} · ${e.success === false ? "FAIL" : "ok"}</span>
+            <div class="muted">${esc(JSON.stringify(e.detail || {}).slice(0, 180))}</div></div>`
+        ).join("");
+      }
+    }
   } catch (e) {
     const el = document.getElementById("audit-db");
     if (el) el.textContent = e.message;
   }
 }
 
-/* ===== TIMESTAMP ===== */
+/* ===== DIAGNOSTICS (bot health, sync, logs) ===== */
+async function loadDiagnostics() {
+  await Promise.all([runHealthCheck(), loadAuditLogOnly()]);
+}
+
+async function runHealthCheck() {
+  const el = document.getElementById("diag-health");
+  if (!el) return;
+  el.innerHTML = '<div class="muted">Checking /health…</div>';
+  try {
+    const h = await fetchHealth();
+    const loops = h.background_loops || {};
+    const loopHtml = Object.keys(loops).length
+      ? Object.entries(loops).map(([k, v]) => `<div class="health-row"><span>${esc(k)}</span><span>${v === true ? "running" : esc(String(v))}</span></div>`).join("")
+      : '<div class="muted">No loop status reported.</div>';
+    const cache = h.message_cache || {};
+    el.innerHTML = `
+      <div class="server-kpis">
+        <div class="server-kpi"><strong>${h.bot_ready ? "READY" : "STARTING"}</strong><small>bot</small></div>
+        <div class="server-kpi"><strong>${esc(h._latency_ms)} ms</strong><small>HTTP latency</small></div>
+        <div class="server-kpi"><strong>${esc(formatUptime(h.uptime_seconds))}</strong><small>uptime</small></div>
+        <div class="server-kpi"><strong>${esc(h.database?.mode || "—")}</strong><small>database</small></div>
+      </div>
+      <div class="health-row"><span>Status</span><span>${esc(h.status || "—")}</span></div>
+      <div class="health-row"><span>KV documents</span><span>${esc(h.database?.kv_documents ?? "—")}</span></div>
+      <div class="health-row"><span>Audit rows</span><span>${esc(h.database?.audit_rows ?? "—")}</span></div>
+      <div class="health-row"><span>Msg cache size</span><span>${esc(cache.size ?? "—")} / ${esc(cache.limit ?? "—")}</span></div>
+      <div class="card-title" style="margin-top:1rem">BACKGROUND LOOPS</div>
+      ${loopHtml}
+      <pre class="diag-raw" style="margin-top:0.75rem;font-size:0.75rem;max-height:160px;overflow:auto">${esc(JSON.stringify(h, null, 2).slice(0, 2500))}</pre>`;
+    toast("Health OK · " + h._latency_ms + " ms");
+  } catch (e) {
+    el.innerHTML = `<div class="muted" style="color:var(--danger,#f66)">Health failed: ${esc(e.message)}</div>
+      <p class="muted">If this fails while Discord is silent, the Render service may be sleeping or restarting. Check UptimeRobot + Render logs.</p>`;
+    toast("Health failed: " + e.message, "error");
+  }
+}
+
+async function loadAuditLogOnly() {
+  const log = document.getElementById("diag-audit");
+  if (!log) return;
+  try {
+    const audit = await apiGet("/api/audit");
+    const entries = audit.entries || [];
+    if (!entries.length) {
+      log.innerHTML = '<div class="muted">No audit entries.</div>';
+      return;
+    }
+    log.innerHTML = entries.slice(0, 30).map((e) =>
+      `<div class="archive-card"><strong>${esc(e.action || "?")}</strong>
+        <span class="muted">${esc(formatDate(e.ts))} · ${esc(e.actor_id || "—")} · ${e.success === false ? "FAIL" : "ok"}</span>
+        <div class="muted">${esc(JSON.stringify(e.detail || {}).slice(0, 160))}</div></div>`
+    ).join("");
+  } catch (e) {
+    log.textContent = e.message;
+  }
+}
+
+async function runSyncCommands(forceWipe) {
+  const el = document.getElementById("diag-sync-out");
+  if (el) el.textContent = forceWipe ? "Force wipe + sync… (can take up to 5 min)" : "Syncing slash commands…";
+  try {
+    const d = await apiPost("/api/sync-commands", { force_wipe: !!forceWipe }, "sync-commands");
+    if (d.error) throw new Error(d.error);
+    const guilds = (d.guilds || []).map((g) => `guild ${g.guild_id}: ${g.count}`).join(" · ");
+    const sample = (d.commands || []).slice(0, 12).join(", ");
+    if (el) {
+      el.innerHTML = `<div class="health-row"><span>OK</span><span>${esc(String(d.count ?? "—"))} commands</span></div>
+        <div class="muted">${esc(guilds)}</div>
+        <div class="muted" style="margin-top:0.5rem">Sample: ${esc(sample)}${(d.commands || []).length > 12 ? "…" : ""}</div>`;
+    }
+    toast("Slash commands synced · " + (d.count ?? "?"));
+  } catch (e) {
+    if (el) el.textContent = e.message;
+    toast("Sync failed: " + e.message, "error");
+  }
+}
+
+async function runAuthCheck() {
+  const el = document.getElementById("diag-auth-out");
+  if (el) el.textContent = "Checking…";
+  try {
+    await apiGet("/api/auth/check");
+    if (el) el.innerHTML = '<span style="color:var(--ok,#0f8)">Auth OK — key + staff role accepted.</span>';
+    toast("Auth OK");
+  } catch (e) {
+    if (el) el.innerHTML = `<span style="color:var(--danger,#f66)">${esc(e.message)}</span>`;
+    toast("Auth failed: " + e.message, "error");
+  }
+}
+
+/* ===== TIMESTAMP (API: enabled, minutes, text) ===== */
 async function loadTimestampConfig() {
   try {
     const d = await apiGet("/api/timestamp-reminder");
     const en = document.getElementById("ts-enabled");
-    const off = document.getElementById("ts-offset");
-    const ch = document.getElementById("ts-channel");
+    const mins = document.getElementById("ts-minutes");
     const msg = document.getElementById("ts-message");
     if (en) en.checked = !!d.enabled;
-    if (off && d.offset_seconds != null) off.value = d.offset_seconds;
-    if (ch && d.channel_id) ch.value = d.channel_id;
-    if (msg && d.message) msg.value = d.message;
+    if (mins && d.minutes != null) mins.value = d.minutes;
+    if (msg && d.text != null) msg.value = d.text;
     updateTsPreview(d);
   } catch (e) {
     const p = document.getElementById("ts-preview");
@@ -427,22 +578,23 @@ function updateTsPreview(d) {
   const p = document.getElementById("ts-preview");
   if (!p) return;
   const enabled = d ? d.enabled : document.getElementById("ts-enabled")?.checked;
-  const offset = d?.offset_seconds ?? document.getElementById("ts-offset")?.value;
+  const minutes = d?.minutes ?? document.getElementById("ts-minutes")?.value;
+  const pending = d?.pending;
   p.innerHTML = `<div class="health-row"><span>Status</span><span>${enabled ? "Enabled ✓" : "Disabled"}</span></div>
-    <div class="health-row"><span>Offset</span><span>${esc(offset)} s</span></div>
+    <div class="health-row"><span>Minutes before</span><span>${esc(minutes)} min</span></div>
+    <div class="health-row"><span>Pending</span><span>${esc(pending ?? "—")}</span></div>
     <div class="health-row"><span>Window</span><span>±45 seconds</span></div>`;
 }
 async function saveTimestampConfig() {
   try {
     const body = {
       enabled: !!document.getElementById("ts-enabled")?.checked,
-      offset_seconds: Number(document.getElementById("ts-offset")?.value || 300),
-      channel_id: document.getElementById("ts-channel")?.value || null,
-      message: document.getElementById("ts-message")?.value || null,
+      minutes: Number(document.getElementById("ts-minutes")?.value || 30),
+      text: document.getElementById("ts-message")?.value || undefined,
     };
-    await apiPost("/api/timestamp-reminder", body);
+    const d = await apiPost("/api/timestamp-reminder", body);
     toast("Timestamp config saved");
-    updateTsPreview(body);
+    updateTsPreview({ ...body, pending: d.pending });
   } catch (e) {
     toast(e.message, "error");
   }
@@ -451,14 +603,13 @@ async function saveTimestampConfig() {
 /* ===== EMBED ===== */
 function updateEmPreview() {
   const title = document.getElementById("em-title")?.value || "Title";
-  const desc = document.getElementById("em-desc")?.value || "";
+  const desc = document.getElementById("em-desc")?.value || "Description";
   const color = document.getElementById("em-color")?.value || "#a855f7";
-  const img = document.getElementById("em-image")?.value || "";
   const el = document.getElementById("em-preview");
   if (!el) return;
-  el.innerHTML = `<div class="embed-preview"><div class="embed-bar" style="background:${esc(color)};box-shadow:0 0 10px ${esc(color)}"></div><div class="embed-body"><strong>${esc(title)}</strong><p>${esc(desc)}</p>${img ? `<img src="${esc(img)}" alt="" style="max-width:100%;border-radius:6px;margin-top:8px" onerror="this.style.display='none'">` : ""}</div></div>`;
+  el.innerHTML = `<div style="border-left:4px solid ${esc(color)};padding:0.5rem 0.75rem;background:rgba(0,0,0,0.25);border-radius:4px"><strong>${esc(title)}</strong><div class="muted" style="margin-top:0.35rem;white-space:pre-wrap">${esc(desc)}</div></div>`;
 }
-async function postEmToDiscord() {
+async function postEmbed() {
   try {
     const body = {
       channel_id: document.getElementById("em-channel")?.value,
@@ -474,61 +625,48 @@ async function postEmToDiscord() {
     toast(e.message, "error");
   }
 }
-function copyEmJson() {
-  const body = {
-    title: document.getElementById("em-title")?.value,
-    description: document.getElementById("em-desc")?.value,
-    color: document.getElementById("em-color")?.value,
-    image: document.getElementById("em-image")?.value || undefined,
-  };
-  copyText(JSON.stringify(body, null, 2));
-}
 
 /* ===== MEETS ===== */
+let mtHosts = [];
 function renderMtHosts() {
-  const el = document.getElementById("mt-hosts");
+  const el = document.getElementById("mt-hosts-list");
   if (!el) return;
-  const hosts = C().hosts || [];
-  el.innerHTML = hosts
-    .map(
-      (h) =>
-        `<span class="chip ${selectedHosts.has(h) ? "active" : ""}" data-host="${esc(h)}">${esc(h)}</span>`
-    )
-    .join("");
-  el.querySelectorAll(".chip").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      const h = chip.dataset.host;
-      if (selectedHosts.has(h)) selectedHosts.delete(h);
-      else selectedHosts.add(h);
-      chip.classList.toggle("active");
-      updateMtPreview();
-    });
-  });
+  el.innerHTML = mtHosts.map((h, i) =>
+    `<span class="chip">${esc(h)} <button type="button" onclick="mtHosts.splice(${i},1);renderMtHosts();updateMtPreview()">×</button></span>`
+  ).join("") || '<span class="muted">No hosts added</span>';
+}
+function addMtHost() {
+  const sel = document.getElementById("mt-host-sel");
+  const custom = document.getElementById("mt-host-custom");
+  const v = (custom?.value || sel?.value || "").trim();
+  if (!v) return;
+  if (!mtHosts.includes(v)) mtHosts.push(v);
+  if (custom) custom.value = "";
+  renderMtHosts();
+  updateMtPreview();
 }
 function updateMtPreview() {
   const el = document.getElementById("mt-preview");
   if (!el) return;
-  const title = document.getElementById("mt-title")?.value || "Meet";
-  const date = document.getElementById("mt-date")?.value || "";
-  const time = document.getElementById("mt-time")?.value || "";
-  const server = document.getElementById("mt-server")?.value || "";
-  const desc = document.getElementById("mt-desc")?.value || "";
-  const hosts = [...selectedHosts].join(", ") || "—";
-  el.innerHTML = `<div class="embed-preview"><div class="embed-bar"></div><div class="embed-body"><strong>${esc(title)}</strong>
-    <p>📅 ${esc(date)} · 🕐 ${esc(time)}<br>🎮 ${esc(server)}<br>👤 Hosts: ${esc(hosts)}<br><br>${esc(desc)}</p></div></div>`;
+  const server = document.getElementById("mt-server")?.value || "Server";
+  const date = document.getElementById("mt-date")?.value || "—";
+  const time = document.getElementById("mt-time")?.value || "—";
+  el.innerHTML = `<strong>${esc(server)}</strong><div class="muted">${esc(date)} ${esc(time)} · hosts: ${esc(mtHosts.join(", ") || "—")}</div>`;
 }
-async function postMtToDiscord() {
+async function postMeet() {
   try {
+    const tzEl = document.getElementById("mt-tz");
+    const opt = tzEl?.selectedOptions?.[0];
     const body = {
-      title: document.getElementById("mt-title")?.value,
+      server: document.getElementById("mt-server")?.value,
       date: document.getElementById("mt-date")?.value,
       time: document.getElementById("mt-time")?.value,
-      timezone: document.getElementById("mt-tz")?.value,
-      server: document.getElementById("mt-server")?.value,
-      description: document.getElementById("mt-desc")?.value,
-      hosts: [...selectedHosts],
+      timezone: tzEl?.value,
+      timezone_offset: opt ? Number(opt.dataset.offset) : -3,
+      hosts: mtHosts.slice(),
       role_id: document.getElementById("mt-role")?.value || null,
-      channel_id: document.getElementById("mt-rem-ch")?.value,
+      reminder_channel_id: document.getElementById("mt-rem-ch")?.value || null,
+      notes: document.getElementById("mt-notes")?.value || null,
     };
     await apiPost("/api/meet", body);
     toast("Meet posted");
@@ -536,73 +674,29 @@ async function postMtToDiscord() {
     toast(e.message, "error");
   }
 }
-function copyMtCommand() {
-  copyText(`/meet title:${document.getElementById("mt-title")?.value || ""}`);
-}
 
-/* ===== POLLS ===== */
-let pollOpts = ["Option A", "Option B"];
-function renderPollOptions() {
-  const el = document.getElementById("poll-options");
-  if (!el) return;
-  el.innerHTML = pollOpts
-    .map(
-      (o, i) =>
-        `<div class="poll-opt"><input value="${esc(o)}" oninput="pollOpts[${i}]=this.value;updatePollPreview()" /><button type="button" onclick="removePollOption(${i})">×</button></div>`
-    )
-    .join("");
-}
-function addPollOption() {
-  if (pollOpts.length >= 10) return toast("Max 10 options", "error");
-  pollOpts.push("Option " + (pollOpts.length + 1));
-  renderPollOptions();
-  updatePollPreview();
-}
-function removePollOption(i) {
-  if (pollOpts.length <= 2) return toast("Need at least 2 options", "error");
-  pollOpts.splice(i, 1);
-  renderPollOptions();
-  updatePollPreview();
-}
-function updatePollPreview() {
-  const el = document.getElementById("poll-preview");
-  if (!el) return;
-  const q = document.getElementById("poll-q")?.value || "Question?";
-  el.innerHTML = `<strong>${esc(q)}</strong><ul style="margin:0.5rem 0 0 1.1rem;color:var(--muted)">${pollOpts.map((o) => `<li>${esc(o)}</li>`).join("")}</ul>`;
-}
-async function postPoll() {
-  try {
-    const body = {
-      question: document.getElementById("poll-q")?.value,
-      channel_id: document.getElementById("poll-channel")?.value,
-      options: pollOpts.filter(Boolean),
-    };
-    await apiPost("/api/poll", body);
-    toast("Poll posted");
-  } catch (e) {
-    toast(e.message, "error");
-  }
-}
-
-/* ===== DM ===== */
+/* ===== DM (API returns conversations[], auto uses text) ===== */
 async function loadDmInbox() {
   const el = document.getElementById("dm-inbox");
   if (!el) return;
   try {
     const d = await apiGet("/api/dm/inbox");
-    const items = d.users || d.inbox || d || [];
-    if (!Array.isArray(items) || !items.length) {
+    const items = d.conversations || [];
+    const autoOn = document.getElementById("dm-auto-on");
+    const autoMsg = document.getElementById("dm-auto-msg");
+    if (autoOn) autoOn.checked = !!d.auto_response_enabled;
+    if (autoMsg && d.auto_response_text != null) autoMsg.value = d.auto_response_text;
+    if (!items.length) {
       el.innerHTML = '<div class="muted">No recent DM contacts.</div>';
       return;
     }
-    el.innerHTML = items
-      .slice(0, 30)
-      .map((u) => {
-        const id = u.user_id || u.id || "";
-        const name = u.username || u.display_name || id;
-        return `<div class="dm-item" onclick="document.getElementById('dm-user-id').value='${esc(id)}';loadDmHistory()"><div><strong>${esc(name)}</strong><div class="muted">${esc(id)}</div></div><span class="muted">${esc(formatDate(u.last_at || u.updated_at))}</span></div>`;
-      })
-      .join("");
+    el.innerHTML = items.slice(0, 40).map((u) => {
+      const id = u.user_id || "";
+      const preview = (u.last_content || "").slice(0, 80);
+      return `<div class="dm-item" onclick="document.getElementById('dm-user-id').value='${esc(id)}';loadDmHistory()">
+        <div><strong>${esc(id)}</strong><div class="muted">${esc(preview) || "—"} · ${esc(u.message_count || 0)} msgs</div></div>
+        <span class="muted">${esc(formatDate(u.last_timestamp))}</span></div>`;
+    }).join("");
   } catch (e) {
     el.textContent = e.message;
   }
@@ -613,18 +707,16 @@ async function loadDmHistory() {
   if (!el || !uid) return;
   try {
     const d = await apiGet(`/api/dm/history/${uid}`);
-    const msgs = d.messages || d.history || [];
+    const msgs = d.messages || [];
     if (!msgs.length) {
       el.innerHTML = '<div class="muted">No messages.</div>';
       return;
     }
-    el.innerHTML = msgs
-      .slice(0, 40)
-      .map(
-        (m) =>
-          `<div class="archive-card"><strong>${esc(m.direction || m.author || "")}</strong> <span class="muted">${esc(formatDate(m.created_at || m.at))}</span><div>${esc(m.content || m.message || "")}</div></div>`
-      )
-      .join("");
+    el.innerHTML = msgs.slice(-50).map((m) =>
+      `<div class="archive-card"><strong>${esc(m.direction || "")}</strong>
+        <span class="muted">${esc(formatDate(m.timestamp || m.created_at))}</span>
+        <div>${esc(m.content || m.message || "")}</div></div>`
+    ).join("");
   } catch (e) {
     el.textContent = e.message;
   }
@@ -636,7 +728,8 @@ async function sendDmReply() {
       message: document.getElementById("dm-reply-msg")?.value,
     });
     toast("Reply sent");
-    document.getElementById("dm-reply-msg").value = "";
+    const msg = document.getElementById("dm-reply-msg");
+    if (msg) msg.value = "";
     loadDmHistory();
   } catch (e) {
     toast(e.message, "error");
@@ -646,7 +739,7 @@ async function saveDmAuto() {
   try {
     await apiPost("/api/dm/auto", {
       enabled: !!document.getElementById("dm-auto-on")?.checked,
-      message: document.getElementById("dm-auto-msg")?.value,
+      text: document.getElementById("dm-auto-msg")?.value,
     });
     toast("Auto-response saved");
   } catch (e) {
@@ -660,13 +753,15 @@ async function loadStats() {
   if (!el) return;
   try {
     const d = await apiGet("/api/stats/summary");
+    const top = (d.top_messages || []).slice(0, 10)
+      .map(([uid, n]) => `<div class="health-row"><span>${esc(uid)}</span><span>${esc(n)}</span></div>`).join("");
     el.innerHTML = `<div class="server-kpis">
-      <div class="server-kpi"><strong>${esc(d.messages ?? d.total_messages ?? "—")}</strong><small>messages</small></div>
-      <div class="server-kpi"><strong>${esc(d.active_users ?? d.users ?? "—")}</strong><small>active users</small></div>
-      <div class="server-kpi"><strong>${esc(d.media ?? "—")}</strong><small>media</small></div>
-      <div class="server-kpi"><strong>${esc(d.period || "tracked")}</strong><small>period</small></div>
+      <div class="server-kpi"><strong>${esc(d.joins ?? "—")}</strong><small>joins</small></div>
+      <div class="server-kpi"><strong>${esc(d.leaves ?? "—")}</strong><small>leaves</small></div>
     </div>
-    <pre style="margin-top:0.75rem">${esc(JSON.stringify(d, null, 2).slice(0, 2000))}</pre>`;
+    <div class="card-title" style="margin-top:0.75rem">TOP MESSAGES</div>
+    ${top || '<div class="muted">No message stats yet.</div>'}
+    <pre style="margin-top:0.75rem;font-size:0.75rem;max-height:200px;overflow:auto">${esc(JSON.stringify(d, null, 2).slice(0, 2000))}</pre>`;
   } catch (e) {
     el.textContent = e.message;
   }
@@ -676,20 +771,40 @@ async function loadTicketLog() {
   if (!el) return;
   try {
     const d = await apiGet("/api/tickets");
-    const items = d.tickets || d.items || d || [];
+    const items = d.tickets || d.items || (Array.isArray(d) ? d : []);
     if (!Array.isArray(items) || !items.length) {
-      el.innerHTML = '<div class="muted">No submissions loaded.</div>';
+      el.innerHTML = '<div class="muted">No ticket data from API (use Discord /ticket_* commands).</div>';
       return;
     }
-    el.innerHTML = items
-      .slice(0, 25)
-      .map(
-        (t) =>
-          `<div class="archive-card"><strong>${esc(t.type || t.kind || "ticket")}</strong> · ${esc(t.user || t.user_id || "")}<div class="muted">${esc(t.content || t.message || "").slice(0, 200)}</div></div>`
-      )
-      .join("");
+    el.innerHTML = items.slice(0, 25).map((t) =>
+      `<div class="archive-card"><strong>${esc(t.type || t.kind || "ticket")}</strong> · ${esc(t.user || t.user_id || "")}
+        <div class="muted">${esc(String(t.content || t.message || "").slice(0, 200))}</div></div>`
+    ).join("");
   } catch (e) {
     el.textContent = e.message;
+  }
+}
+async function loadNameHistoryApi() {
+  const out = document.getElementById("nh-out");
+  if (!out) return;
+  try {
+    const data = await apiGet("/api/namehistory");
+    const members = data.members || data;
+    const vals = Object.values(members || {});
+    if (!vals.length) {
+      out.innerHTML = '<div class="muted">No name history in storage yet.</div>';
+      return;
+    }
+    out.innerHTML = vals.slice(0, 80).map((m) => {
+      const names = (m.names || []).slice(-5).map((n) =>
+        n.reason === "rename"
+          ? `${esc(n.previous_display_name || "?")} → <strong>${esc(n.display_name || "?")}</strong>`
+          : `first: <strong>${esc(n.display_name || "?")}</strong>`
+      ).join("<br>");
+      return `<div class="archive-card"><strong>${esc(m.display_name || m.username || m.user_id)}</strong> <code>${esc(m.user_id || "")}</code><div class="muted" style="margin-top:5px">${names || "—"}</div></div>`;
+    }).join("");
+  } catch (e) {
+    out.innerHTML = `<div class="muted">${esc(e.message)}</div>`;
   }
 }
 function renderNameHistory() {
@@ -700,20 +815,14 @@ function renderNameHistory() {
     const data = JSON.parse(raw);
     const members = data.members || data;
     out.innerHTML =
-      Object.values(members)
-        .slice(0, 80)
-        .map((m) => {
-          const names = (m.names || [])
-            .slice(-5)
-            .map((n) =>
-              n.reason === "rename"
-                ? `${esc(n.previous_display_name || "?")} → <strong>${esc(n.display_name || "?")}</strong>`
-                : `first: <strong>${esc(n.display_name || "?")}</strong>`
-            )
-            .join("<br>");
-          return `<div class="archive-card"><strong>${esc(m.display_name || m.username || m.user_id)}</strong> <code>${esc(m.user_id || "")}</code><div class="muted" style="margin-top:5px">${names || "—"}</div></div>`;
-        })
-        .join("") || '<div class="muted">No members in file.</div>';
+      Object.values(members).slice(0, 80).map((m) => {
+        const names = (m.names || []).slice(-5).map((n) =>
+          n.reason === "rename"
+            ? `${esc(n.previous_display_name || "?")} → <strong>${esc(n.display_name || "?")}</strong>`
+            : `first: <strong>${esc(n.display_name || "?")}</strong>`
+        ).join("<br>");
+        return `<div class="archive-card"><strong>${esc(m.display_name || m.username || m.user_id)}</strong> <code>${esc(m.user_id || "")}</code><div class="muted" style="margin-top:5px">${names || "—"}</div></div>`;
+      }).join("") || '<div class="muted">No members in file.</div>';
   } catch (e) {
     out.innerHTML = `<div class="muted">Invalid JSON: ${esc(e.message)}</div>`;
   }
@@ -727,7 +836,7 @@ function initAll() {
   fillSelect(document.getElementById("mt-server"), cfg.servers);
   fillSelect(document.getElementById("mt-role"), cfg.roles, true);
   fillSelect(document.getElementById("mt-rem-ch"), cfg.channels);
-  fillSelect(document.getElementById("poll-channel"), cfg.channels);
+  fillSelect(document.getElementById("mt-host-sel"), cfg.hosts);
   fillTz(document.getElementById("mt-tz"), -3);
   const today = new Date().toISOString().slice(0, 10);
   const md = document.getElementById("mt-date");
@@ -735,20 +844,15 @@ function initAll() {
   renderMtHosts();
   updateEmPreview();
   updateMtPreview();
-  renderPollOptions();
-  updatePollPreview();
   loadOverview();
-  loadTimestampConfig();
   loadCommands();
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => switchTab(btn.dataset.tab));
   });
-  /* restore gate fields if reopening */
   const uid = getDiscordUserId();
   if (uid && document.getElementById("gate-user-id")) document.getElementById("gate-user-id").value = uid;
 }
 
-/* auto-open if session key exists */
 document.addEventListener("DOMContentLoaded", () => {
   const uidEl = document.getElementById("gate-user-id");
   if (uidEl && getDiscordUserId()) uidEl.value = getDiscordUserId();
