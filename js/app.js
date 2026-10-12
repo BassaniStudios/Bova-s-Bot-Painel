@@ -397,9 +397,15 @@ async function loadOverview() {
     }
   } catch (e) {
     const st = document.getElementById("dash-status");
-    if (st) st.textContent = e.message;
+    let msg = e && e.message ? e.message : String(e);
+    if (/failed to fetch|networkerror|load failed/i.test(msg)) {
+      msg = "Failed to fetch — CORS or network. Redeploy bot API (CORS *) or open the panel from the origin listed in PANEL_URL. Check Render is awake.";
+    }
+    if (st) st.textContent = msg;
     setText("m-latency", "err");
     setText("m-guild", "—");
+    setText("m-commands", "—");
+    setText("m-db", "—");
   }
 }
 
