@@ -39,8 +39,13 @@ window.BOVA_CONFIG = {
 
 /**
  * URL pública da API do bot no Render (sem barra no final).
- * Produção: bovasbot2-0.onrender.com
+ * Use a URL real do Web Service no dashboard do Render.
+ * Se estiver errada/offline, o painel mostra falha de conexão.
+ * Dá para sobrescrever no login (campo URL da API) — fica salvo no navegador.
+ *
+ * Exemplo: "https://nome-do-seu-servico.onrender.com"
+ * A URL antiga bovasbot2-0.onrender.com retorna 404 (serviço inexistente).
  */
 window.BOVA_API = {
-  baseUrl: "https://bovasbot2-0.onrender.com",
+  baseUrl: "https://bovasbots.onrender.com",
 };

@@ -1109,3 +1109,45 @@ pre {
   margin-bottom: 0.6rem;
   font-size: 1rem;
 }
+
+.api-status {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.api-status.online {
+  color: var(--green);
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.08);
+}
+.api-status.offline {
+  color: var(--red);
+  border-color: rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.08);
+}
+.api-status.checking {
+  color: var(--orange);
+  border-color: rgba(251, 146, 60, 0.45);
+  background: rgba(251, 146, 60, 0.08);
+}
+.api-banner {
+  margin: 0 1.25rem 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--text);
+  font-size: 0.88rem;
+}
+.api-banner strong { color: var(--red); }
+.api-banner code {
+  background: rgba(0,0,0,0.35);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.82em;
+  color: var(--magenta);
+}

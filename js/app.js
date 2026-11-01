@@ -56,16 +56,64 @@ function getDiscordUserId() {
 function setDiscordUserId(id) {
   localStorage.setItem("bova_discord_user_id", id);
 }
+function getStoredApiUrl() {
+  return (localStorage.getItem("bova_api_base_url") || "").trim();
+}
+function setStoredApiUrl(url) {
+  const clean = String(url || "").trim().replace(/\/+$/, "");
+  if (clean) localStorage.setItem("bova_api_base_url", clean);
+  else localStorage.removeItem("bova_api_base_url");
+}
 function apiBase() {
+  const stored = getStoredApiUrl();
+  if (stored) return stored;
   const u = (window.BOVA_API && window.BOVA_API.baseUrl) || "";
   return String(u).replace(/\/+$/, "");
 }
 
+/** Traduz erros de rede do browser para mensagem útil em PT */
+function friendlyNetworkError(err, base) {
+  const raw = String((err && err.message) || err || "");
+  const low = raw.toLowerCase();
+  if (low.includes("failed to fetch") || low.includes("networkerror") || low.includes("load failed") || low.includes("network request failed")) {
+    return (
+      "Não foi possível conectar à API (" + (base || "sem URL") + "). " +
+      "Causas comuns: serviço Render offline/dormindo, URL errada, ou rede bloqueando. " +
+      "Confira a URL no login e se o Web Service está Up no Render."
+    );
+  }
+  if (low.includes("aborted") || low.includes("abort")) {
+    return "Requisição cancelada (outra chamada substituiu esta).";
+  }
+  return raw || "Erro de rede desconhecido";
+}
+
+function setApiStatus(state, label) {
+  const el = document.getElementById("api-status");
+  if (!el) return;
+  el.className = "api-status " + (state || "offline");
+  el.textContent = label || "API · —";
+}
+
+function showApiBanner(html) {
+  const el = document.getElementById("api-banner");
+  if (!el) return;
+  if (!html) {
+    el.style.display = "none";
+    el.innerHTML = "";
+    return;
+  }
+  el.style.display = "";
+  el.innerHTML = html;
+}
+
 /* ===== API ===== */
 const _inflight = new Map();
+let _apiDown = false;
+
 async function apiFetch(path, opts = {}, key) {
   const base = apiBase();
-  if (!base) throw new Error("BOVA_API.baseUrl não definido em config.js");
+  if (!base) throw new Error("URL da API não definida. Informe no login ou em js/config.js (BOVA_API.baseUrl).");
   if (key && _inflight.has(key)) {
     try { _inflight.get(key).abort(); } catch (_) {}
   }
@@ -87,7 +135,27 @@ async function apiFetch(path, opts = {}, key) {
       const msg = (data && (data.error || data.message || data.detail)) || `HTTP ${res.status}`;
       throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
     }
+    if (_apiDown) {
+      _apiDown = false;
+      setApiStatus("online", "API · online");
+      showApiBanner("");
+    }
     return data;
+  } catch (err) {
+    const msgAlreadyFriendly = String(err && err.message || "").includes("Não foi possível conectar");
+    const friendly = msgAlreadyFriendly ? String(err.message) : friendlyNetworkError(err, base);
+    if (/failed to fetch|networkerror|load failed/i.test(String(err && err.message || ""))) {
+      _apiDown = true;
+      setApiStatus("offline", "API · offline");
+      showApiBanner(
+        "<strong>API inacessível.</strong> URL atual: <code>" + esc(base) + "</code><br>" +
+        "1) Confirme no Render que o Web Service está <em>Live</em> (não Suspended).<br>" +
+        "2) A URL correta é a do serviço (ex.: <code>https://nome-do-servico.onrender.com</code>), sem barra no final.<br>" +
+        "3) Free tier: após idle o cold start pode levar 30–60s — use “Testar conexão” no login.<br>" +
+        "4) Ajuste a URL no login (campo URL da API) e autentique de novo."
+      );
+    }
+    throw new Error(friendly);
   } finally {
     if (key && _inflight.get(key) === ctrl) _inflight.delete(key);
   }
@@ -100,14 +168,61 @@ async function apiPost(path, body, key) {
 }
 async function fetchHealth() {
   const base = apiBase();
-  if (!base) throw new Error("BOVA_API.baseUrl não definido");
+  if (!base) throw new Error("URL da API não definida");
   const t0 = performance.now();
-  const res = await fetch(base + "/health", { method: "GET" });
+  let res;
+  try {
+    res = await fetch(base + "/health", { method: "GET" });
+  } catch (err) {
+    throw new Error(friendlyNetworkError(err, base));
+  }
   const ms = Math.round(performance.now() - t0);
   let data = null;
   try { data = await res.json(); } catch (_) {}
-  if (!res.ok) throw new Error((data && data.error) || `HTTP ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error(
+        "HTTP 404 em /health — o serviço Render não existe ou a URL está errada (" + base + "). " +
+        "Abra o dashboard do Render e copie a URL pública do Web Service."
+      );
+    }
+    throw new Error((data && data.error) || `HTTP ${res.status}`);
+  }
   return { ...data, _latency_ms: ms };
+}
+
+async function testApiConnection() {
+  const input = document.getElementById("gate-api-url");
+  const err = document.getElementById("gate-error");
+  if (input && input.value.trim()) {
+    setStoredApiUrl(input.value.trim());
+  }
+  const base = apiBase();
+  if (!base) {
+    if (err) err.textContent = "Informe a URL da API (https://seu-servico.onrender.com).";
+    return;
+  }
+  if (err) {
+    err.style.color = "";
+    err.textContent = "Testando " + base + " … (cold start pode demorar)";
+  }
+  setApiStatus("checking", "API · testando");
+  try {
+    const h = await fetchHealth();
+    if (err) {
+      err.style.color = "#34d399";
+      err.textContent = "OK · " + (h._latency_ms || "?") + " ms · " + base;
+    }
+    setApiStatus("online", "API · online");
+    toast("API respondendo (" + (h._latency_ms || "?") + " ms)");
+  } catch (e) {
+    if (err) {
+      err.style.color = "";
+      err.textContent = e.message;
+    }
+    setApiStatus("offline", "API · offline");
+    toast(e.message, "error");
+  }
 }
 
 /* ===== UI HELPERS ===== */
@@ -167,10 +282,12 @@ function pretty(obj) {
 }
 
 /* ===== GATE ===== */
-function tryUnlock() {
+async function tryUnlock() {
   const key = (document.getElementById("gate-input")?.value || "").trim();
   const uid = (document.getElementById("gate-user-id")?.value || "").trim();
+  const apiUrl = (document.getElementById("gate-api-url")?.value || "").trim();
   const err = document.getElementById("gate-error");
+  if (err) err.style.color = "";
   if (!uid || !/^\d{15,22}$/.test(uid)) {
     err.textContent = "Informe um ID Discord válido (snowflake numérico).";
     return;
@@ -179,13 +296,31 @@ function tryUnlock() {
     err.textContent = "Informe a chave de acesso.";
     return;
   }
+  if (apiUrl) setStoredApiUrl(apiUrl);
+  if (!apiBase()) {
+    err.textContent = "Informe a URL da API do Render (https://….onrender.com).";
+    return;
+  }
   setAccessKey(key);
   setDiscordUserId(uid);
+  err.textContent = "Verificando API…";
+  setApiStatus("checking", "API · testando");
+  try {
+    await fetchHealth();
+    setApiStatus("online", "API · online");
+    showApiBanner("");
+  } catch (e) {
+    // Ainda permite entrar para ver o painel, mas avisa com clareza
+    setApiStatus("offline", "API · offline");
+    err.textContent = e.message;
+    toast(e.message, "error");
+    // não bloqueia o login — o banner dentro do app explica o que fazer
+  }
   document.getElementById("gate").style.display = "none";
   document.getElementById("app").style.display = "";
   initAll();
   apiGet("/api/auth/check").then(() => toast("Autenticado")).catch((e) => {
-    toast("Falha na autenticação: " + e.message, "error");
+    toast("Auth: " + e.message, "error");
   });
 }
 
@@ -552,11 +687,6 @@ function initAll() {
   updateMeetPreview();
   updateEmbedPreview();
   loadOverview();
-
-  const savedUid = getDiscordUserId();
-  if (savedUid && document.getElementById("gate-user-id")) {
-    document.getElementById("gate-user-id").value = savedUid;
-  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -566,5 +696,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const uid = getDiscordUserId();
   if (uid && document.getElementById("gate-user-id")) {
     document.getElementById("gate-user-id").value = uid;
+  }
+  const apiInput = document.getElementById("gate-api-url");
+  if (apiInput) {
+    apiInput.value = getStoredApiUrl() || apiBase() || "";
   }
 });

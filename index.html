@@ -25,9 +25,12 @@
       <input id="gate-user-id" inputmode="numeric" placeholder="Seu ID do Discord (snowflake)" autocomplete="off" />
       <label for="gate-input">Chave de acesso</label>
       <input type="password" id="gate-input" placeholder="Digite a chave de acesso" autocomplete="current-password" />
+      <label for="gate-api-url">URL da API do bot (Render)</label>
+      <input id="gate-api-url" type="url" placeholder="https://seu-servico.onrender.com" autocomplete="off" />
+      <button class="btn btn-ghost btn-block" type="button" onclick="testApiConnection()" style="margin-bottom:0.5rem">Testar conexão com a API</button>
       <button class="btn btn-primary btn-block" onclick="tryUnlock()">Autenticar <span>→</span></button>
       <div class="gate-error" id="gate-error"></div>
-      <div class="gate-note">A chave fica só nesta sessão do navegador. Seu ID é usado para validar o cargo na API.</div>
+      <div class="gate-note">A chave fica só nesta sessão. A URL da API é salva neste navegador. No Render free o serviço “dorme” — a 1ª chamada pode levar ~30–60s.</div>
     </div>
   </div>
 
@@ -79,10 +82,12 @@
           <div id="page-title">Painel</div>
         </div>
         <div class="topbar-actions">
+          <span id="api-status" class="api-status offline" title="Status da API">API · —</span>
           <button class="btn btn-ghost" onclick="refreshCurrent()">↻ Atualizar</button>
           <button class="menu-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
         </div>
       </header>
+      <div id="api-banner" class="api-banner" style="display:none"></div>
 
       <div class="content">
 
